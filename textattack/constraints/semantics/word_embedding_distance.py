@@ -122,8 +122,8 @@ class WordEmbeddingDistance(Constraint):
         else:
             metric = "min_cos_sim"
         return [
-                   "embedding",
-                   metric,
-                   "cased",
-                   "include_unknown_words",
-               ] + super().extra_repr_keys()
+            "embedding",
+            metric,
+            "cased",
+            "include_unknown_words",
+        ] + super().extra_repr_keys()

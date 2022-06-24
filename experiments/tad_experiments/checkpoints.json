@@ -212,16 +212,7 @@
       "Checkpoint File": "TAD-AGNews10KPWWS.zip",
       "Author": "H, Yang (yangheng@m.scnu.edu.cn)"
     },
-    "tad-sst2": {
-      "id": "",
-      "Training Model": "TAD",
-      "Training Dataset": "SST2",
-      "Language": "English",
-      "Description": "Trained on RTX3090",
-      "Available Version": "1.15+",
-      "Checkpoint File": "TAD-SST2.zip",
-      "Author": "H, Yang (yangheng@m.scnu.edu.cn)"
-    },
+
     "tad-agnews10ktextfooler": {
       "id": "",
       "Training Model": "TAD",
@@ -232,7 +223,37 @@
       "Checkpoint File": "TAD-AGNews10KTextFooler.zip",
       "Author": "H, Yang (yangheng@m.scnu.edu.cn)"
     },
+   "tad-sst2": {
+      "id": "",
+      "Training Model": "TAD",
+      "Training Dataset": "SST2",
+      "Language": "English",
+      "Description": "Trained on RTX3090",
+      "Available Version": "1.15+",
+      "Checkpoint File": "TAD-SST2.zip",
+      "Author": "H, Yang (yangheng@m.scnu.edu.cn)"
+    },
     "tad-agnews10k": {
+      "id": "",
+      "Training Model": "TAD",
+      "Training Dataset": "AGNews",
+      "Language": "English",
+      "Description": "Trained on RTX3090",
+      "Available Version": "1.15+",
+      "Checkpoint File": "TAD-AGNews10K.zip",
+      "Author": "H, Yang (yangheng@m.scnu.edu.cn)"
+    },
+   "tad-bert-sst2": {
+      "id": "",
+      "Training Model": "TAD",
+      "Training Dataset": "SST2",
+      "Language": "English",
+      "Description": "Trained on RTX3090",
+      "Available Version": "1.15+",
+      "Checkpoint File": "TAD-SST2.zip",
+      "Author": "H, Yang (yangheng@m.scnu.edu.cn)"
+    },
+    "tad-bert-agnews10k": {
       "id": "",
       "Training Model": "TAD",
       "Training Dataset": "AGNews",

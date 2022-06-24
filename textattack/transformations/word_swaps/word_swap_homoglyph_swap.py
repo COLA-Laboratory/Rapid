@@ -74,13 +74,13 @@ class WordSwapHomoglyphSwap(WordSwap):
             i = np.random.randint(0, len(word))
             if word[i] in self.homos:
                 repl_letter = self.homos[word[i]]
-                candidate_word = word[:i] + repl_letter + word[i + 1:]
+                candidate_word = word[:i] + repl_letter + word[i + 1 :]
                 candidate_words.append(candidate_word)
         else:
             for i in range(len(word)):
                 if word[i] in self.homos:
                     repl_letter = self.homos[word[i]]
-                    candidate_word = word[:i] + repl_letter + word[i + 1:]
+                    candidate_word = word[:i] + repl_letter + word[i + 1 :]
                     candidate_words.append(candidate_word)
 
         return candidate_words

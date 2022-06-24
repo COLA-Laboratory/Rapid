@@ -38,6 +38,7 @@ ATTACK_RECIPE_NAMES = {
     "a2t": "textattack.attack_recipes.A2TYoo2021",
 }
 
+
 BLACK_BOX_TRANSFORMATION_CLASS_NAMES = {
     "random-synonym-insertion": "textattack.transformations.RandomSynonymInsertion",
     "word-deletion": "textattack.transformations.WordDeletion",
@@ -54,9 +55,11 @@ BLACK_BOX_TRANSFORMATION_CLASS_NAMES = {
     "word-swap-qwerty": "textattack.transformations.WordSwapQWERTY",
 }
 
+
 WHITE_BOX_TRANSFORMATION_CLASS_NAMES = {
     "word-swap-gradient": "textattack.transformations.WordSwapGradientBased"
 }
+
 
 CONSTRAINT_CLASS_NAMES = {
     #
@@ -94,6 +97,7 @@ CONSTRAINT_CLASS_NAMES = {
     "max-word-index": "textattack.constraints.pre_transformation.MaxWordIndexModification",
 }
 
+
 SEARCH_METHOD_CLASS_NAMES = {
     "beam-search": "textattack.search_methods.BeamSearch",
     "greedy": "textattack.search_methods.GreedySearch",
@@ -101,6 +105,7 @@ SEARCH_METHOD_CLASS_NAMES = {
     "greedy-word-wir": "textattack.search_methods.GreedyWordSwapWIR",
     "pso": "textattack.search_methods.ParticleSwarmOptimization",
 }
+
 
 GOAL_FUNCTION_CLASS_NAMES = {
     #
@@ -310,7 +315,7 @@ class AttackArgs:
             const="",
             type=str,
             help="Path to which to save attack logs as a text file. Set this argument if you want to save text logs. "
-                 "If the last part of the path ends with `.txt` extension, the path is assumed to path for output file.",
+            "If the last part of the path ends with `.txt` extension, the path is assumed to path for output file.",
         )
         parser.add_argument(
             "--log-to-csv",
@@ -319,14 +324,14 @@ class AttackArgs:
             const="",
             type=str,
             help="Path to which to save attack logs as a CSV file. Set this argument if you want to save CSV logs. "
-                 "If the last part of the path ends with `.csv` extension, the path is assumed to path for output file.",
+            "If the last part of the path ends with `.csv` extension, the path is assumed to path for output file.",
         )
         parser.add_argument(
             "--csv-coloring-style",
             default=default_obj.csv_coloring_style,
             type=str,
             help='Method for choosing how to mark perturbed parts of the text in CSV logs. Options are "file" and "plain". '
-                 '"file" wraps text with double brackets `[[ <text> ]]` while "plain" does not mark any text. Default is "file".',
+            '"file" wraps text with double brackets `[[ <text> ]]` while "plain" does not mark any text. Default is "file".',
         )
         parser.add_argument(
             "--log-to-visdom",
@@ -335,8 +340,8 @@ class AttackArgs:
             const='{"env": "main", "port": 8097, "hostname": "localhost"}',
             type=json.loads,
             help="Set this argument if you want to log attacks to Visdom. The dictionary should have the following "
-                 'three keys and their corresponding values: `"env", "port", "hostname"`. '
-                 'Example for command line use: `--log-to-visdom {"env": "main", "port": 8097, "hostname": "localhost"}`.',
+            'three keys and their corresponding values: `"env", "port", "hostname"`. '
+            'Example for command line use: `--log-to-visdom {"env": "main", "port": 8097, "hostname": "localhost"}`.',
         )
         parser.add_argument(
             "--log-to-wandb",
@@ -345,8 +350,8 @@ class AttackArgs:
             const='{"project": "textattack"}',
             type=json.loads,
             help="Set this argument if you want to log attacks to WandB. The dictionary should have the following "
-                 'key and its corresponding value: `"project"`. '
-                 'Example for command line use: `--log-to-wandb {"project": "textattack"}`.',
+            'key and its corresponding value: `"project"`. '
+            'Example for command line use: `--log-to-wandb {"project": "textattack"}`.',
         )
         parser.add_argument(
             "--disable-stdout",
@@ -473,8 +478,8 @@ class _CommandLineAttackArgs:
     interactive: bool = False
     parallel: bool = False
     model_batch_size: int = 32
-    model_cache_size: int = 2 ** 18
-    constraint_cache_size: int = 2 ** 18
+    model_cache_size: int = 2**18
+    constraint_cache_size: int = 2**18
 
     @classmethod
     def _add_parser_args(cls, parser):
@@ -489,7 +494,7 @@ class _CommandLineAttackArgs:
             required=False,
             default=default_obj.transformation,
             help='The transformation to apply. Usage: "--transformation {transformation}:{arg_1}={value_1},{arg_3}={value_3}". Choices: '
-                 + str(transformation_names),
+            + str(transformation_names),
         )
         parser.add_argument(
             "--constraints",
@@ -498,7 +503,7 @@ class _CommandLineAttackArgs:
             nargs="*",
             default=default_obj.constraints,
             help='Constraints to add to the attack. Usage: "--constraints {constraint}:{arg_1}={value_1},{arg_3}={value_3}". Choices: '
-                 + str(CONSTRAINT_CLASS_NAMES.keys()),
+            + str(CONSTRAINT_CLASS_NAMES.keys()),
         )
         goal_function_choices = ", ".join(GOAL_FUNCTION_CLASS_NAMES.keys())
         parser.add_argument(

@@ -19,7 +19,6 @@ from textattack.attack_results import (
 )
 from textattack.shared import logger, utils
 
-
 # TODO: Consider still keeping the old `Checkpoint` class and allow older checkpoints to be loaded to new TextAttack
 
 
@@ -70,7 +69,7 @@ class AttackCheckpoint:
         recipe_set = (
             True
             if "recipe" in self.attack_args.__dict__
-               and self.attack_args.__dict__["recipe"]
+            and self.attack_args.__dict__["recipe"]
             else False
         )
         mutually_exclusive_args = ["search", "transformation", "constraints", "recipe"]

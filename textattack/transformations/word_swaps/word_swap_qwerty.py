@@ -91,13 +91,13 @@ class WordSwapQWERTY(WordSwap):
         if self.random_one:
             i = random.randrange(start_idx, end_idx + 1)
             candidate_word = (
-                word[:i] + random.choice(self._get_adjacent(word[i])) + word[i + 1:]
+                word[:i] + random.choice(self._get_adjacent(word[i])) + word[i + 1 :]
             )
             candidate_words.append(candidate_word)
         else:
             for i in range(start_idx, end_idx + 1):
                 for swap_key in self._get_adjacent(word[i]):
-                    candidate_word = word[:i] + swap_key + word[i + 1:]
+                    candidate_word = word[:i] + swap_key + word[i + 1 :]
                     candidate_words.append(candidate_word)
 
         return candidate_words

@@ -14,7 +14,7 @@ import torch
 from textattack.shared import utils
 
 
-class AbstractWordEmbedding(ABC):
+class AbstractWordEmbedding(utils.ReprMixin, ABC):
     """Abstract class representing word embedding used by TextAttack.
 
     This class specifies all the methods that is required to be defined
@@ -96,8 +96,6 @@ class AbstractWordEmbedding(ABC):
             neighbours (list[int]): List of indices of the nearest neighbours
         """
         raise NotImplementedError()
-
-    __repr__ = __str__ = utils.default_class_repr
 
 
 class WordEmbedding(AbstractWordEmbedding):
@@ -234,7 +232,7 @@ class WordEmbedding(AbstractWordEmbedding):
         if isinstance(index, str):
             index = self._word2index[index]
         if self.nn_matrix is not None:
-            nn = self.nn_matrix[index][1: (topn + 1)]
+            nn = self.nn_matrix[index][1 : (topn + 1)]
         else:
             try:
                 nn = self._nn_cache[index]
@@ -256,9 +254,9 @@ class WordEmbedding(AbstractWordEmbedding):
         if (
             "textattack_counterfitted_GLOVE_embedding" in utils.GLOBAL_OBJECTS
             and isinstance(
-            utils.GLOBAL_OBJECTS["textattack_counterfitted_GLOVE_embedding"],
-            WordEmbedding,
-        )
+                utils.GLOBAL_OBJECTS["textattack_counterfitted_GLOVE_embedding"],
+                WordEmbedding,
+            )
         ):
             # avoid recreating same embedding (same memory) and instead share across different components
             return utils.GLOBAL_OBJECTS["textattack_counterfitted_GLOVE_embedding"]

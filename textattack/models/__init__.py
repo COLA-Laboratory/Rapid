@@ -35,6 +35,7 @@ TextAttack can attack any model that takes a list of strings as input and output
 We've also provided implementations of model wrappers for common patterns in some popular machine learning frameworks: including pytorch / sklearn / tensorflow.
 """
 
+
 from . import helpers
 from . import tokenizers
 from . import wrappers

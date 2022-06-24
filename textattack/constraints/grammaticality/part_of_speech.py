@@ -56,7 +56,7 @@ class PartOfSpeech(Constraint):
         self.language_nltk = language_nltk
         self.language_stanza = language_stanza
 
-        self._pos_tag_cache = lru.LRU(2 ** 14)
+        self._pos_tag_cache = lru.LRU(2**14)
         if tagger_type == "flair":
             if tagset == "universal":
                 self._flair_pos_tagger = SequenceTagger.load("upos-fast")
@@ -93,7 +93,8 @@ class PartOfSpeech(Constraint):
 
             if self.tagger_type == "flair":
                 context_key_sentence = Sentence(
-                    context_key, use_tokenizer=textattack.shared.utils.words_from_text
+                    context_key,
+                    use_tokenizer=textattack.shared.utils.TextAttackFlairTokenizer(),
                 )
                 self._flair_pos_tagger.predict(context_key_sentence)
                 word_list, pos_list = textattack.shared.utils.zip_flair_result(
@@ -123,10 +124,10 @@ class PartOfSpeech(Constraint):
         for i in indices:
             reference_word = reference_text.words[i]
             transformed_word = transformed_text.words[i]
-            before_ctx = reference_text.words[max(i - 4, 0): i]
+            before_ctx = reference_text.words[max(i - 4, 0) : i]
             after_ctx = reference_text.words[
-                        i + 1: min(i + 4, len(reference_text.words))
-                        ]
+                i + 1 : min(i + 4, len(reference_text.words))
+            ]
             ref_pos = self._get_pos(before_ctx, reference_word, after_ctx)
             replace_pos = self._get_pos(before_ctx, transformed_word, after_ctx)
             if not self._can_replace_pos(ref_pos, replace_pos):
@@ -139,10 +140,10 @@ class PartOfSpeech(Constraint):
 
     def extra_repr_keys(self):
         return [
-                   "tagger_type",
-                   "tagset",
-                   "allow_verb_noun_swap",
-               ] + super().extra_repr_keys()
+            "tagger_type",
+            "tagset",
+            "allow_verb_noun_swap",
+        ] + super().extra_repr_keys()
 
     def __getstate__(self):
         state = self.__dict__.copy()

@@ -153,7 +153,7 @@ class SentenceEncoder(Constraint, ABC):
             if not isinstance(embeddings, torch.Tensor):
                 embeddings = torch.tensor(embeddings)
             starting_embeddings = embeddings[: len(transformed_texts)]
-            transformed_embeddings = embeddings[len(transformed_texts):]
+            transformed_embeddings = embeddings[len(transformed_texts) :]
         else:
             starting_raw_text = starting_text.text
             transformed_raw_texts = [t.text for t in transformed_texts]
@@ -204,11 +204,11 @@ class SentenceEncoder(Constraint, ABC):
 
     def extra_repr_keys(self):
         return [
-                   "metric",
-                   "threshold",
-                   "window_size",
-                   "skip_text_shorter_than_window",
-               ] + super().extra_repr_keys()
+            "metric",
+            "threshold",
+            "window_size",
+            "skip_text_shorter_than_window",
+        ] + super().extra_repr_keys()
 
 
 def get_angular_sim(emb1, emb2):

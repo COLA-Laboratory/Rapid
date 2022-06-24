@@ -112,12 +112,12 @@ class ParticleSwarmOptimization(PopulationBasedSearch):
             )
             indices_to_replace = set(indices_to_replace)
             new_text.attack_attrs["modified_indices"] = (
-                                                            source_text.attacked_text.attack_attrs["modified_indices"]
-                                                            - indices_to_replace
-                                                        ) | (
-                                                            target_text.attacked_text.attack_attrs["modified_indices"]
-                                                            & indices_to_replace
-                                                        )
+                source_text.attacked_text.attack_attrs["modified_indices"]
+                - indices_to_replace
+            ) | (
+                target_text.attacked_text.attack_attrs["modified_indices"]
+                & indices_to_replace
+            )
             if "last_transformation" in source_text.attacked_text.attack_attrs:
                 new_text.attack_attrs[
                     "last_transformation"

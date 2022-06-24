@@ -22,6 +22,7 @@ flair.device = device
 
 
 class AttackedText:
+
     """A helper class that represents a string that can be attacked.
 
     Models that take multiple sentences as input separate them by ``SPLIT_TOKEN``.
@@ -137,8 +138,8 @@ class AttackedText:
         """
         if not self._pos_tags:
             sentence = Sentence(
-                self.text, use_tokenizer=textattack.shared.utils.words_from_text
-                # self.text, use_tokenizer=True
+                self.text,
+                use_tokenizer=textattack.shared.utils.TextAttackFlairTokenizer(),
             )
             textattack.shared.utils.flair_tag(sentence)
             self._pos_tags = sentence
@@ -154,8 +155,8 @@ class AttackedText:
             if word_idx == desired_word_idx:
                 return flair_pos_list[word_idx_in_flair_tags]
             else:
-                flair_word_list = flair_word_list[word_idx_in_flair_tags + 1:]
-                flair_pos_list = flair_pos_list[word_idx_in_flair_tags + 1:]
+                flair_word_list = flair_word_list[word_idx_in_flair_tags + 1 :]
+                flair_pos_list = flair_pos_list[word_idx_in_flair_tags + 1 :]
 
         raise ValueError(
             f"Did not find word from index {desired_word_idx} in flair POS tag"
@@ -168,7 +169,8 @@ class AttackedText:
         """
         if not self._ner_tags:
             sentence = Sentence(
-                self.text, use_tokenizer=textattack.shared.utils.words_from_text
+                self.text,
+                use_tokenizer=textattack.shared.utils.TextAttackFlairTokenizer(),
             )
             textattack.shared.utils.flair_tag(sentence, model_name)
             self._ner_tags = sentence
@@ -181,8 +183,8 @@ class AttackedText:
             if word_idx == desired_word_idx:
                 return flair_ner_list[word_idx_in_flair_tags]
             else:
-                flair_word_list = flair_word_list[word_idx_in_flair_tags + 1:]
-                flair_ner_list = flair_ner_list[word_idx_in_flair_tags + 1:]
+                flair_word_list = flair_word_list[word_idx_in_flair_tags + 1 :]
+                flair_ner_list = flair_ner_list[word_idx_in_flair_tags + 1 :]
 
         raise ValueError(
             f"Did not find word from index {desired_word_idx} in flair POS tag"
@@ -379,7 +381,7 @@ class AttackedText:
     def get_deletion_indices(self):
         return self.attack_attrs["original_index_map"][
             self.attack_attrs["original_index_map"] == -1
-            ]
+        ]
 
     def generate_new_attacked_text(self, new_words):
         """Returns a new AttackedText object and replaces old list of words
@@ -467,6 +469,10 @@ class AttackedText:
             # Add substitute word(s) to new sentence.
             perturbed_text += adv_word_seq
         perturbed_text += original_text  # Add all of the ending punctuation.
+
+        # Add pointer to self so chain of replacements can be reconstructed.
+        new_attack_attrs["prev_attacked_text"] = self
+
         # Reform perturbed_text into an OrderedDict.
         perturbed_input_texts = perturbed_text.split(AttackedText.SPLIT_TOKEN)
         perturbed_input = OrderedDict(
@@ -505,7 +511,7 @@ class AttackedText:
                 token = tokens[j].lower()
                 idx = word.lower().find(token)
                 if idx == 0:
-                    word = word[idx + len(token):]
+                    word = word[idx + len(token) :]
                     matched_tokens.append(j)
                     last_matched = j
                 j += 1

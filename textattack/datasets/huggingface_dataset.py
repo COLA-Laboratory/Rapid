@@ -10,9 +10,9 @@ TextAttack allows users to provide their own dataset or load from HuggingFace.
 
 import collections
 
-import textattack
+import datasets
 
-import datasets as datasets
+import textattack
 
 from .dataset import Dataset
 
@@ -40,6 +40,10 @@ def get_datasets_dataset_columns(dataset):
     elif {"question", "sentence", "label"} <= schema:
         input_columns = ("question", "sentence")
         output_column = "label"
+    elif {"context", "question", "title", "answers"} <= schema:
+        # Common schema for SQUAD dataset
+        input_columns = ("title", "context", "question")
+        output_column = "answers"
     elif {"text", "label"} <= schema:
         input_columns = ("text",)
         output_column = "label"

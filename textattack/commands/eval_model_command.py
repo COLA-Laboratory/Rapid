@@ -5,6 +5,7 @@ EvalModelCommand class
 
 """
 
+
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 from dataclasses import dataclass
 
@@ -53,7 +54,7 @@ class EvalModelCommand(TextAttackCommand):
         ground_truth_outputs = []
         i = 0
         while i < min(args.num_examples, len(dataset)):
-            dataset_batch = dataset[i: min(args.num_examples, i + args.batch_size)]
+            dataset_batch = dataset[i : min(args.num_examples, i + args.batch_size)]
             batch_inputs = []
             for (text_input, ground_truth_output) in dataset_batch:
                 attacked_text = textattack.shared.AttackedText(text_input)

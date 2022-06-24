@@ -53,11 +53,11 @@ class WordSwapNeighboringCharacterSwap(WordSwap):
 
         if self.random_one:
             i = np.random.randint(start_idx, end_idx)
-            candidate_word = word[:i] + word[i + 1] + word[i] + word[i + 2:]
+            candidate_word = word[:i] + word[i + 1] + word[i] + word[i + 2 :]
             candidate_words.append(candidate_word)
         else:
             for i in range(start_idx, end_idx):
-                candidate_word = word[:i] + word[i + 1] + word[i] + word[i + 2:]
+                candidate_word = word[:i] + word[i + 1] + word[i] + word[i + 2 :]
                 candidate_words.append(candidate_word)
 
         return candidate_words

@@ -193,8 +193,9 @@ if __name__ == '__main__':
     # attack_name = 'WordBug'
 
     datasets = [
-        'sst2',
-        'agnews10k',
+        # 'sst2',
+        # 'agnews10k',
+        'agnews120k',
         # 'Yelp10K',
         # 'imdb10k',
     ]
@@ -203,8 +204,8 @@ if __name__ == '__main__':
         tad_classifier = TADCheckpointManager.get_tad_text_classifier(
             # f'tadbert_SST2_cls_acc_95.75_cls_f1_95.75_adv_det_acc_89.85_adv_det_f1_89.71_adv_training_acc_90.48_adv_training_f1_90.48.zip',
             # f'tadbert_{dataset}{attack_name}',
-            f'tadbert_{dataset}',
-            # f'TAD-{dataset}',
+            # f'tadbert_{dataset}',
+            f'TAD-{dataset}',
             auto_device=autocuda.auto_cuda()
         )
 

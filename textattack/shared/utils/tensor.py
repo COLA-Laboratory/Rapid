@@ -10,7 +10,7 @@ def batch_model_predict(model_predict, inputs, batch_size=32):
     outputs = []
     i = 0
     while i < len(inputs):
-        batch = inputs[i: i + batch_size]
+        batch = inputs[i : i + batch_size]
         batch_preds = model_predict(batch)
 
         # Some seq-to-seq models will return a single string as a prediction

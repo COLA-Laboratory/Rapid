@@ -3,6 +3,7 @@ Determine for if an attack has been successful in Classification
 ---------------------------------------------------------------------
 """
 
+
 import numpy as np
 import torch
 

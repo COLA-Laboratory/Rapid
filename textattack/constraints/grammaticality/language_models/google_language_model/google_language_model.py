@@ -74,8 +74,8 @@ class GoogleLanguageModel(Constraint):
             probs_of_swaps_at_index.sort(key=lambda x: -x[1])
             if self.top_n_per_index:
                 probs_of_swaps_at_index = probs_of_swaps_at_index[
-                                          : self.top_n_per_index
-                                          ]
+                    : self.top_n_per_index
+                ]
             probs.extend(probs_of_swaps_at_index)
             # t2 = time.time()
 

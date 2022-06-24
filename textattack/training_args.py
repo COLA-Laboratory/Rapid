@@ -364,7 +364,7 @@ class _CommandLineTrainingArgs:
             type=str,
             required=True,
             help='Name or path of the model we want to create. "lstm" and "cnn" will create TextAttack\'s LSTM and CNN models while'
-                 ' any other input will be used to create Transformers model. (e.g."brt-base-uncased").',
+            ' any other input will be used to create Transformers model. (e.g."brt-base-uncased").',
         )
         parser.add_argument(
             "--model-max-length",
@@ -397,22 +397,22 @@ class _CommandLineTrainingArgs:
             required=True,
             default="yelp",
             help="dataset for training; will be loaded from "
-                 "`datasets` library. if dataset has a subset, separate with a colon. "
-                 " ex: `glue^sst2` or `rotten_tomatoes`",
+            "`datasets` library. if dataset has a subset, separate with a colon. "
+            " ex: `glue^sst2` or `rotten_tomatoes`",
         )
         parser.add_argument(
             "--dataset-train-split",
             type=str,
             default="",
             help="train dataset split, if non-standard "
-                 "(can automatically detect 'train'",
+            "(can automatically detect 'train'",
         )
         parser.add_argument(
             "--dataset-eval-split",
             type=str,
             default="",
             help="val dataset split, if non-standard "
-                 "(can automatically detect 'dev', 'validation', 'eval')",
+            "(can automatically detect 'dev', 'validation', 'eval')",
         )
         parser.add_argument(
             "--filter-train-by-labels",
@@ -539,6 +539,42 @@ class _CommandLineTrainingArgs:
             train_dataset.filter_by_labels_(args.filter_train_by_labels)
         if args.filter_eval_by_labels:
             eval_dataset.filter_by_labels_(args.filter_eval_by_labels)
+        # Testing for Coverage of model return values with dataset.
+        num_labels = args.model_num_labels if args.model_num_labels else 2
+
+        # Only Perform labels checks if output_column is equal to label.
+        if (
+            train_dataset.output_column == "label"
+            and eval_dataset.output_column == "label"
+        ):
+
+            train_dataset_labels = train_dataset._dataset["label"]
+
+            eval_dataset_labels = eval_dataset._dataset["label"]
+
+            train_dataset_labels_set = set(train_dataset_labels)
+
+            assert all(
+                label >= 0
+                for label in train_dataset_labels_set
+                if isinstance(label, int)
+            ), f"Train dataset has negative label/s {[label for label in train_dataset_labels_set if isinstance(label,int) and label < 0 ]} which is/are not supported by pytorch.Use --filter-train-by-labels to keep suitable labels"
+
+            assert num_labels >= len(
+                train_dataset_labels_set
+            ), f"Model constructed has {num_labels} output nodes and train dataset has {len(train_dataset_labels_set)} labels , Model should have output nodes greater than or equal to labels in train dataset.Use --model-num-labels to set model's output nodes."
+
+            eval_dataset_labels_set = set(eval_dataset_labels)
+
+            assert all(
+                label >= 0
+                for label in eval_dataset_labels_set
+                if isinstance(label, int)
+            ), f"Eval dataset has negative label/s {[label for label in eval_dataset_labels_set if isinstance(label,int) and label < 0 ]} which is/are not supported by pytorch.Use --filter-eval-by-labels to keep suitable labels"
+
+            assert num_labels >= len(
+                set(eval_dataset_labels_set)
+            ), f"Model constructed has {num_labels} output nodes and eval dataset has {len(eval_dataset_labels_set)} labels , Model should have output nodes greater than or equal to labels in eval dataset.Use --model-num-labels to set model's output nodes."
 
         return train_dataset, eval_dataset
 

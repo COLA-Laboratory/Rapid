@@ -106,7 +106,7 @@ class WordMergeMaskedLM(Transformation):
         # 2-D list where for each index to modify we have a list of replacement words
         replacement_words = []
         while i < len(masked_texts):
-            inputs = self._encode_text(masked_texts[i: i + self.batch_size])
+            inputs = self._encode_text(masked_texts[i : i + self.batch_size])
             ids = [
                 inputs["input_ids"][i].tolist() for i in range(len(inputs["input_ids"]))
             ]

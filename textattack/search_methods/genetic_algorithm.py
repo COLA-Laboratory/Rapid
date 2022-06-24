@@ -186,8 +186,8 @@ class GeneticAlgorithm(PopulationBasedSearch, ABC):
 
             replaced_indices = new_text.attack_attrs["newly_modified_indices"]
             new_text.attack_attrs["modified_indices"] = (
-                                                            x1_text.attack_attrs["modified_indices"] - replaced_indices
-                                                        ) | (x2_text.attack_attrs["modified_indices"] & replaced_indices)
+                x1_text.attack_attrs["modified_indices"] - replaced_indices
+            ) | (x2_text.attack_attrs["modified_indices"] & replaced_indices)
 
             if "last_transformation" in x1_text.attack_attrs:
                 new_text.attack_attrs["last_transformation"] = x1_text.attack_attrs[

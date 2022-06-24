@@ -5,6 +5,7 @@ TextAttack CLI main class
 
 """
 
+
 # !/usr/bin/env python
 import argparse
 

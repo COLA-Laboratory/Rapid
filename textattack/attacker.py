@@ -92,7 +92,7 @@ class Attacker:
     def _get_worklist(self, start, end, num_examples, shuffle):
         if end - start < num_examples:
             logger.warn(
-                f"Attempting to attack {num_examples} samples when only {end - start} are available."
+                f"Attempting to attack {num_examples} samples when only {end-start} are available."
             )
         candidates = list(range(start, end))
         if shuffle:
@@ -101,8 +101,12 @@ class Attacker:
         candidates = collections.deque(candidates[num_examples:])
         assert (len(worklist) + len(candidates)) == (end - start)
         return worklist, candidates
-
+    
     def simple_attack(self, text, label):
+        """Internal method that carries out attack.
+
+          No parallel processing is involved.
+              """
         if torch.cuda.is_available():
             self.attack.cuda_()
 
@@ -115,6 +119,7 @@ class Attacker:
                 result = self.attack.attack(example, ground_truth_output)
             except Exception as e:
                 raise e
+                # return
             if (isinstance(result, SkippedAttackResult) and self.attack_args.attack_n) or (
                 not isinstance(result, SuccessfulAttackResult)
                 and self.attack_args.num_successful_examples

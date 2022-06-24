@@ -146,7 +146,7 @@ class Augmenter:
                         text
                         for text in transformed_texts
                         if len(text.attack_attrs["modified_indices"])
-                           >= num_words_to_swap
+                        >= num_words_to_swap
                     ]
                     for text in ready_texts:
                         all_transformed_texts.add(text)
