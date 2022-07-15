@@ -112,6 +112,7 @@ def run_TAD_benchmark(_dataset: str, _attack_recipe, _defense_attacker: str):
 
             detection_count = 0.
             detection_acc_count = 0.
+
             it = tqdm.tqdm(data, postfix='evaluating on {} ...'.format(data_file))
             for text, label in it:
                 result = sent_attacker.attacker.simple_attack(text, label)
@@ -139,22 +140,25 @@ def run_TAD_benchmark(_dataset: str, _attack_recipe, _defense_attacker: str):
                         acc_count += 1
                 it.postfix = colored('Restored Accuracy: {}%'.format(round(acc_count / all_count * 100, 2)), 'cyan')
                 it.update()
-            summary = ('TAD Benchmark Result: \n'
-                       'Attack Recipe: {}\n'
-                       'Dataset: {}\n'
-                       'Restored Accuracy: {}%\n'
-                       'Accuracy of AdvExample Detection: {}%\n'
-                       'Accuracy of AdvExample Defense: {}%\n').format(attack_recipe,
-                                                                       args.dataset,
-                                                                       round(acc_count / len(data), 2) * 100,
-                                                                       round(detection_acc_count / detection_count, 2) * 100,
-                                                                       round(defense_acc_count / defense_count, 2) * 100)
-            print('-----------------------------------------------------')
+
+            summary = (
+                '-----------------------------------------------------\n'
+                'TAD Benchmark Result: \n'
+                'Attack Recipe: {}\n'
+                'Dataset: {}\n'
+                'Restored Accuracy: {}%\n'
+                'Accuracy of AdvExample Detection: {}%\n'
+                'Accuracy of AdvExample Defense: {}%\n'
+                '-----------------------------------------------------\n').format(
+                _attack_recipe.__name__,
+                args.dataset,
+                round(acc_count / len(data), 2) * 100,
+                round(detection_acc_count / detection_count, 2) * 100,
+                round(defense_acc_count / defense_count, 2) * 100
+            )
             print(colored(summary, 'green'))
-            print('-----------------------------------------------------')
             with open('./result/{}_{}_TAD_result.txt'.format(args.dataset, args.tad_model), mode='w', encoding='utf8') as fout:
                 fout.write(summary)
-                fout.write('-----------------------------------------------------\n')
 
 
 if __name__ == '__main__':
@@ -186,8 +190,8 @@ if __name__ == '__main__':
         # 'bae': BAEGarg2019,
         # 'pwws': PWWSRen2019,
         # 'textfooler': TextFoolerJin2019,
-        'wordbugger': DeepWordBugGao2018,
-        'pso': PSOZang2020,
+        # 'wordbugger': DeepWordBugGao2018,
+        # 'pso': PSOZang2020,
         'iga': IGAWang2019,
         'GA': GeneticAlgorithmAlzantot2018,
         # 'custom': CustomAttackRecipe  # Your Own Attacker implemented in TextAttack

@@ -212,7 +212,6 @@
       "Checkpoint File": "TAD-AGNews10KPWWS.zip",
       "Author": "H, Yang (yangheng@m.scnu.edu.cn)"
     },
-
     "tad-agnews10ktextfooler": {
       "id": "",
       "Training Model": "TAD",
@@ -223,7 +222,7 @@
       "Checkpoint File": "TAD-AGNews10KTextFooler.zip",
       "Author": "H, Yang (yangheng@m.scnu.edu.cn)"
     },
-   "tad-sst2": {
+    "tad-sst2": {
       "id": "",
       "Training Model": "TAD",
       "Training Dataset": "SST2",
@@ -243,7 +242,7 @@
       "Checkpoint File": "TAD-AGNews10K.zip",
       "Author": "H, Yang (yangheng@m.scnu.edu.cn)"
     },
-   "tad-bert-sst2": {
+    "tad-bert-sst2": {
       "id": "",
       "Training Model": "TAD",
       "Training Dataset": "SST2",

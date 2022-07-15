@@ -22,8 +22,16 @@ class PyABSAModelWrapper(HuggingFaceModelWrapper):
         self.model = model  # pipeline = pipeline
 
     def __call__(self, text_inputs, **kwargs):
-        outputs = []
-        for text_input in text_inputs:
-            raw_outputs = self.model.infer(text_input, defense='pwws', print_result=False, **kwargs)
-            outputs.append(raw_outputs['probs'])
-        return outputs
+        if len(text_inputs) > 1:  # No attack defense mode
+            outputs = []
+            for text_input in text_inputs:
+                raw_outputs = self.model.infer(text_input, defense=None, print_result=False, **kwargs)
+                outputs.append(raw_outputs['probs'])
+            return outputs
+        else:
+            outputs = []
+            for text_input in text_inputs:
+                raw_outputs = self.model.infer(text_input, defense='pwws', print_result=False, **kwargs)
+                outputs.append(raw_outputs['probs'])
+            return outputs
+

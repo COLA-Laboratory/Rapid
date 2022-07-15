@@ -32,7 +32,6 @@ class MultilingualUniversalSentenceEncoder(SentenceEncoder):
         # TODO add QA SET. Details at: https://hub.tensorflow.google.cn/google/universal-sentence-encoder-multilingual-qa/3
         self._tfhub_url = tfhub_url
         self.mirror_tfhub_url = mirror_tfhub_url
-
         try:
             self.model = hub.load(self._tfhub_url)
         except:
