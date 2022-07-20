@@ -37,7 +37,7 @@ if "TF_CPP_MIN_LOG_LEVEL" not in os.environ:
 device = autocuda.auto_cuda()
 
 
-class PyABSAMOdelWrapper(HuggingFaceModelWrapper):
+class PyABSAModelWrapper(HuggingFaceModelWrapper):
     """ Transformers sentiment analysis pipeline returns a list of responses
         like
 
@@ -70,7 +70,7 @@ class SentAttacker:
         # model_wrapper = HuggingFaceSentimentAnalysisPipelineWrapper(sent_pipeline)
         # model_wrapper = HuggingFaceModelWrapper(model=model, tokenizer=tokenizer)
         model = model
-        model_wrapper = PyABSAMOdelWrapper(model)
+        model_wrapper = PyABSAModelWrapper(model)
 
         recipe = recipe_class.build(model_wrapper)
         # WordNet defaults to english. Set the default language to French ('fra')
@@ -101,7 +101,7 @@ def generate_adversarial_example(dataset, attack_recipe, text_classifier):
     search_path = './'
     task = 'text_classification'
     # dataset_file['train'] += find_files(search_path, [dataset, 'train', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'test.', 'synthesized'] + filter_key_words)
-    dataset_file['test'] += find_files(search_path, [dataset, 'test', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
+    dataset_file['test'] += find_files(search_path, and_key=[dataset, 'test', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
     # dataset_file['valid'] += find_files(search_path, [dataset, 'valid', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
     # dataset_file['valid'] += find_files(search_path, [dataset, 'dev', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
 
@@ -151,13 +151,14 @@ if __name__ == '__main__':
 
     datasets = [
         # 'sst2',
-        'agnews10k',
+        # 'agnews10k',
         # 'Yelp10K'
         # 'imdb10k',
+        'Amazon'
     ]
 
     for dataset in datasets:
-        text_classifier = TCCheckpointManager.get_text_classifier('tc-{}'.format(dataset))
+        text_classifier = TCCheckpointManager.get_text_classifier('bert_{}'.format(dataset))
         attack_recipes = {
             'bae': BAEGarg2019,
             'pwws': PWWSRen2019,

@@ -28,9 +28,9 @@ from textattack.models.wrappers import ModelWrapper, HuggingFaceModelWrapper
 import os
 
 import autocuda
-from pyabsa import TCConfigManager, GloVeTCModelList, TCDatasetList, BERTTCModelList
+from pyabsa import TCConfigManager, GloVeTCModelList, TCDatasetList, BERTTCModelList, TCCheckpointManager
 
-from boost_aug import TCBoostAug, AugmentBackend
+# from boost_aug import TCBoostAug, AugmentBackend
 
 if "TF_CPP_MIN_LOG_LEVEL" not in os.environ:
     os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
@@ -38,7 +38,7 @@ if "TF_CPP_MIN_LOG_LEVEL" not in os.environ:
 device = autocuda.auto_cuda()
 
 
-class PyABSAMOdelWrapper(HuggingFaceModelWrapper):
+class PyABSAModelWrapper(HuggingFaceModelWrapper):
     """ Transformers sentiment analysis pipeline returns a list of responses
         like
 
@@ -71,7 +71,7 @@ class SentAttacker:
         # model_wrapper = HuggingFaceSentimentAnalysisPipelineWrapper(sent_pipeline)
         # model_wrapper = HuggingFaceModelWrapper(model=model, tokenizer=tokenizer)
         model = model
-        model_wrapper = PyABSAMOdelWrapper(model)
+        model_wrapper = PyABSAModelWrapper(model)
 
         recipe = recipe_class.build(model_wrapper)
         # WordNet defaults to english. Set the default language to French ('fra')
@@ -91,14 +91,14 @@ class SentAttacker:
         self.attacker = Attacker(recipe, dataset)
 
 
-def generate_adversarial_example(dataset, augmentor):
+def generate_adversarial_example(dataset, classifier):
     # attack_recipe_name = attack_recipe.__name__
     attack_recipes = [
         BAEGarg2019,
         PWWSRen2019,
         TextFoolerJin2019,
     ]
-    attackers = [SentAttacker(augmentor.text_classifier, attack_recipe) for attack_recipe in attack_recipes]
+    attackers = [SentAttacker(classifier, attack_recipe) for attack_recipe in attack_recipes]
 
     filter_key_words = ['.py', '.md', 'readme', 'log', 'result', 'zip', '.state_dict', '.model', '.png', 'acc_', 'f1_', '.origin', '.adv', '.csv']
 
@@ -148,51 +148,51 @@ def generate_adversarial_example(dataset, augmentor):
             print(colored('Accuracy Under Attack: {}'.format(acc_count / len(data)), 'green'))
 
 
-def prepare_augmentor(dataset):
-    tc_config = TCConfigManager.get_classification_config_english()
-    tc_config.model = BERTTCModelList.BERT  # 'BERT' model can be used for DeBERTa or BERT
-    tc_config.num_epoch = 15
-    tc_config.evaluate_begin = 0
-    tc_config.max_seq_len = 100
-    tc_config.pretrained_bert = 'microsoft/deberta-v3-base'
-    tc_config.log_step = 100
-    tc_config.dropout = 0.1
-    tc_config.cache_dataset = False
-    tc_config.seed = 1
-    tc_config.l2reg = 1e-7
-    tc_config.learning_rate = 1e-5
-
-    backend = AugmentBackend.EDA
-    dataset_map = {
-        # 'sst2': TCDatasetList.SST2,
-        'agnews10k': TCDatasetList.AGNews10K,
-        'yelp10k': TCDatasetList.Yelp10K,
-        'imdb10k': TCDatasetList.IMDB10K
-    }
-
-    augmentor = TCBoostAug(ROOT=os.getcwd(),
-                           AUGMENT_BACKEND=backend,
-                           CLASSIFIER_TRAINING_NUM=1,
-                           WINNER_NUM_PER_CASE=8,
-                           AUGMENT_NUM_PER_CASE=16,
-                           CONFIDENCE_THRESHOLD=0.8,
-                           PERPLEXITY_THRESHOLD=5,
-                           USE_LABEL=False,
-                           device=device)
-    # augmentor.tc_mono_augment(tc_config,
-    #                           dataset_map[dataset.lower()],
-    #                           rewrite_cache=False,
-    #                           train_after_aug=False
-    #                           )
-    # augmentor.tc_boost_augment(tc_config,
-    #                            dataset_map[dataset.lower()],
-    #                            rewrite_cache=True,
-    #                            train_after_aug=True
-    #                            )
-    augmentor.USE_LABEL = False
-    augmentor.load_augmentor('TC-{}'.format(dataset))
-    return augmentor
-
+# def prepare_classifier(dataset):
+#     tc_config = TCConfigManager.get_classification_config_english()
+#     tc_config.model = BERTTCModelList.BERT  # 'BERT' model can be used for DeBERTa or BERT
+#     tc_config.num_epoch = 15
+#     tc_config.evaluate_begin = 0
+#     tc_config.max_seq_len = 100
+#     tc_config.pretrained_bert = 'microsoft/deberta-v3-base'
+#     tc_config.log_step = 100
+#     tc_config.dropout = 0.1
+#     tc_config.cache_dataset = False
+#     tc_config.seed = 1
+#     tc_config.l2reg = 1e-7
+#     tc_config.learning_rate = 1e-5
+#
+#     backend = AugmentBackend.EDA
+#     dataset_map = {
+#         # 'sst2': TCDatasetList.SST2,
+#         'agnews10k': TCDatasetList.AGNews10K,
+#         'yelp10k': TCDatasetList.Yelp10K,
+#         'imdb10k': TCDatasetList.IMDB10K
+#     }
+#
+#     augmentor = TCBoostAug(ROOT=os.getcwd(),
+#                            AUGMENT_BACKEND=backend,
+#                            CLASSIFIER_TRAINING_NUM=1,
+#                            WINNER_NUM_PER_CASE=8,
+#                            AUGMENT_NUM_PER_CASE=16,
+#                            CONFIDENCE_THRESHOLD=0.8,
+#                            PERPLEXITY_THRESHOLD=5,
+#                            USE_LABEL=False,
+#                            device=device)
+#     # augmentor.tc_mono_augment(tc_config,
+#     #                           dataset_map[dataset.lower()],
+#     #                           rewrite_cache=False,
+#     #                           train_after_aug=False
+#     #                           )
+#     # augmentor.tc_boost_augment(tc_config,
+#     #                            dataset_map[dataset.lower()],
+#     #                            rewrite_cache=True,
+#     #                            train_after_aug=True
+#     #                            )
+#     augmentor.USE_LABEL = False
+#     augmentor.load_augmentor('TC-{}'.format(dataset))
+#     return augmentor
+#
 
 if __name__ == '__main__':
 
@@ -205,14 +205,16 @@ if __name__ == '__main__':
     # attack_name = 'WordBug'
 
     datasets = [
-        'sst2',
-        'agnews10k',
+        # 'sst2',
+        # 'agnews10k',
         # 'Yelp10K'
         # 'imdb10k',
+        'Amazon'
+
     ]
 
     for dataset in datasets:
-        augmentor = prepare_augmentor(dataset)
+        # augmentor = prepare_augmentor(dataset)
+        text_classifier = TCCheckpointManager.get_text_classifier('bert_{}'.format(dataset))
 
-
-        generate_adversarial_example(dataset, augmentor=augmentor)
+        generate_adversarial_example(dataset, text_classifier)

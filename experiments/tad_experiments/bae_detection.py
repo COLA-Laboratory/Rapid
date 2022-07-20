@@ -59,7 +59,7 @@ if "TF_CPP_MIN_LOG_LEVEL" not in os.environ:
 # raw_augs = augmenter.augment(text)
 
 
-class PyABSAMOdelWrapper(HuggingFaceModelWrapper):
+class PyABSAModelWrapper(HuggingFaceModelWrapper):
     """ Transformers sentiment analysis pipeline returns a list of responses
         like
 
@@ -85,7 +85,7 @@ class SentAttacker:
 
     def __init__(self, model, recipe_class=BAEGarg2019):
         model = model
-        model_wrapper = PyABSAMOdelWrapper(model)
+        model_wrapper = PyABSAModelWrapper(model)
 
         recipe = recipe_class.build(model_wrapper)
         # WordNet defaults to english. Set the default language to French ('fra')
@@ -195,20 +195,20 @@ if __name__ == '__main__':
     datasets = [
         # 'sst2',
         # 'agnews10k',
-        'agnews120k',
+        # 'agnews120k',
         # 'Yelp10K',
         # 'imdb10k',
+        'Amazon',
     ]
 
     for dataset in datasets:
         tad_classifier = TADCheckpointManager.get_tad_text_classifier(
             # f'tadbert_SST2_cls_acc_95.75_cls_f1_95.75_adv_det_acc_89.85_adv_det_f1_89.71_adv_training_acc_90.48_adv_training_f1_90.48.zip',
-            # f'tadbert_{dataset}{attack_name}',
-            # f'tadbert_{dataset}',
-            f'TAD-{dataset}',
+            # f'TAD-BERT-{dataset}{attack_name}',
+            f'tadbert_{dataset}{attack_name}',
+            # f'TAD-{dataset}',
             auto_device=autocuda.auto_cuda()
         )
-
         attack_recipes = {
             'bae': BAEGarg2019,
             'pwws': PWWSRen2019,

@@ -1,0 +1,7 @@
+-----------------------------------------------------TAD Benchmark Result: 
+Attack Recipe: DeepWordBugGao2018
+Dataset: SST2
+Restored Accuracy: 81.0%
+Accuracy of AdvExample Detection: 81.0%
+Accuracy of AdvExample Defense: 76.0%
+-----------------------------------------------------

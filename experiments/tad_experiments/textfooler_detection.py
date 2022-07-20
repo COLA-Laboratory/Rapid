@@ -60,7 +60,7 @@ if "TF_CPP_MIN_LOG_LEVEL" not in os.environ:
 # raw_augs = augmenter.augment(text)
 
 
-class PyABSAMOdelWrapper(HuggingFaceModelWrapper):
+class PyABSAModelWrapper(HuggingFaceModelWrapper):
     """ Transformers sentiment analysis pipeline returns a list of responses
         like
 
@@ -93,7 +93,7 @@ class SentAttacker:
         # model_wrapper = HuggingFaceSentimentAnalysisPipelineWrapper(sent_pipeline)
         # model_wrapper = HuggingFaceModelWrapper(model=model, tokenizer=tokenizer)
         model = model
-        model_wrapper = PyABSAMOdelWrapper(model)
+        model_wrapper = PyABSAModelWrapper(model)
 
         recipe = recipe_class.build(model_wrapper)
         # WordNet defaults to english. Set the default language to French ('fra')
@@ -198,67 +198,69 @@ def generate_adversarial_example(dataset, attack_recipe):
 
 if __name__ == '__main__':
 
-    # # attack_name = 'BAE'
-    # # attack_name = 'PWWS'
-    # attack_name = 'TextFooler'
-    #
-    # # attack_name = 'PSO'
-    # # attack_name = 'IGA'
-    # # attack_name = 'WordBug'
-    #
-    # datasets = [
-    #     'sst2',
-    #     'agnews10k',
-    #     # 'Yelp10K',
-    #     # 'imdb10k',
-    # ]
-    #
-    # for dataset in datasets:
-    #     tad_classifier = TADCheckpointManager.get_tad_text_classifier(
-    #         # f'tadbert_SST2_cls_acc_95.75_cls_f1_95.75_adv_det_acc_89.85_adv_det_f1_89.71_adv_training_acc_90.48_adv_training_f1_90.48.zip',
-    #         f'tadbert_{dataset}{attack_name}',
-    #         # f'TAD-{dataset}',
-    #         auto_device=autocuda.auto_cuda()
-    #     )
-    #
-    #     attack_recipes = {
-    #         'bae': BAEGarg2019,
-    #         'pwws': PWWSRen2019,
-    #         'textfooler': TextFoolerJin2019,
-    #         'pso': PSOZang2020,
-    #         'iga': IGAWang2019,
-    #         'GA': GeneticAlgorithmAlzantot2018,
-    #         'wordbugger': DeepWordBugGao2018,
-    #     }
-    #     generate_adversarial_example(dataset, attack_recipe=attack_recipes[attack_name.lower()])
+    # attack_name = 'BAE'
+    # attack_name = 'PWWS'
+    attack_name = 'TextFooler'
 
-    for attack_name in [
-        'BAE',
-        'PWWS',
-        'TextFooler'
-    ]:
-        datasets = [
-            'sst2',
-            # 'agnews10k',
-            # 'Yelp10K',
-            # 'imdb10k',
-        ]
+    # attack_name = 'PSO'
+    # attack_name = 'IGA'
+    # attack_name = 'WordBug'
 
-        for dataset in datasets:
-            tad_classifier = TADCheckpointManager.get_tad_text_classifier(
-                # f'tadbert_SST2_cls_acc_95.75_cls_f1_95.75_adv_det_acc_89.85_adv_det_f1_89.71_adv_training_acc_90.48_adv_training_f1_90.48.zip',
-                f'tadlstm_{dataset}',
-                # f'TAD-{dataset}',
-                auto_device=autocuda.auto_cuda()
-            )
+    datasets = [
+        # 'sst2',
+        # 'agnews10k',
+        # 'Yelp10K',
+        # 'imdb10k',
+        'Amazon',
+    ]
 
-            attack_recipes = {
-                'bae': BAEGarg2019,
-                'pwws': PWWSRen2019,
-                'textfooler': TextFoolerJin2019,
-                'pso': PSOZang2020,
-                'iga': IGAWang2019,
-                'GA': GeneticAlgorithmAlzantot2018,
-                'wordbugger': DeepWordBugGao2018,
-            }
-            generate_adversarial_example(dataset, attack_recipe=attack_recipes[attack_name.lower()])
+    for dataset in datasets:
+        tad_classifier = TADCheckpointManager.get_tad_text_classifier(
+            # f'tadbert_SST2_cls_acc_95.75_cls_f1_95.75_adv_det_acc_89.85_adv_det_f1_89.71_adv_training_acc_90.48_adv_training_f1_90.48.zip',
+            # f'TAD-{dataset}{attack_name}',
+            f'tadbert_{dataset}{attack_name}',
+            auto_device=autocuda.auto_cuda()
+        )
+
+        attack_recipes = {
+            'bae': BAEGarg2019,
+            'pwws': PWWSRen2019,
+            'textfooler': TextFoolerJin2019,
+            'pso': PSOZang2020,
+            'iga': IGAWang2019,
+            'GA': GeneticAlgorithmAlzantot2018,
+            'wordbugger': DeepWordBugGao2018,
+        }
+        generate_adversarial_example(dataset, attack_recipe=attack_recipes[attack_name.lower()])
+
+    # for attack_name in [
+    #     'BAE',
+    #     'PWWS',
+    #     'TextFooler'
+    # ]:
+    #     datasets = [
+    #         # 'sst2',
+    #         # 'agnews10k',
+    #         # 'Yelp10K',
+    #         # 'imdb10k',
+    #         'Amazon',
+    #     ]
+    #
+    #     for dataset in datasets:
+    #         tad_classifier = TADCheckpointManager.get_tad_text_classifier(
+    #             # f'tadbert_SST2_cls_acc_95.75_cls_f1_95.75_adv_det_acc_89.85_adv_det_f1_89.71_adv_training_acc_90.48_adv_training_f1_90.48.zip',
+    #             f'TAD-{dataset}{attack_name}',
+    #             # f'TAD-{dataset}',
+    #             auto_device=autocuda.auto_cuda()
+    #         )
+    #
+    #         attack_recipes = {
+    #             'bae': BAEGarg2019,
+    #             'pwws': PWWSRen2019,
+    #             'textfooler': TextFoolerJin2019,
+    #             'pso': PSOZang2020,
+    #             'iga': IGAWang2019,
+    #             'GA': GeneticAlgorithmAlzantot2018,
+    #             'wordbugger': DeepWordBugGao2018,
+    #         }
+    #         generate_adversarial_example(dataset, attack_recipe=attack_recipes[attack_name.lower()])

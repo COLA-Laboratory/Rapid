@@ -15,6 +15,7 @@ import os
 
 import numpy as np
 import pandas
+from pyabsa.functional.dataset import detect_dataset
 from transformers import AutoTokenizer, TFAutoModelForSequenceClassification, pipeline, AutoModelForSequenceClassification
 
 from textattack import Attacker
@@ -27,7 +28,7 @@ from textattack.models.wrappers import ModelWrapper, HuggingFaceModelWrapper
 import os
 
 import autocuda
-from pyabsa import TCConfigManager, GloVeTCModelList, TCDatasetList, BERTTCModelList, TADCheckpointManager
+from pyabsa import TCConfigManager, GloVeTCModelList, TCDatasetList, BERTTCModelList, TADCheckpointManager, TCCheckpointManager
 
 if "TF_CPP_MIN_LOG_LEVEL" not in os.environ:
     os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
@@ -35,7 +36,7 @@ if "TF_CPP_MIN_LOG_LEVEL" not in os.environ:
 device = autocuda.auto_cuda()
 
 
-class PyABSAMOdelWrapper(HuggingFaceModelWrapper):
+class PyABSAModelWrapper(HuggingFaceModelWrapper):
     """ Transformers sentiment analysis pipeline returns a list of responses
         like
 
@@ -68,7 +69,7 @@ class SentAttacker:
         # model_wrapper = HuggingFaceSentimentAnalysisPipelineWrapper(sent_pipeline)
         # model_wrapper = HuggingFaceModelWrapper(model=model, tokenizer=tokenizer)
         model = model
-        model_wrapper = PyABSAMOdelWrapper(model)
+        model_wrapper = PyABSAModelWrapper(model)
 
         recipe = recipe_class.build(model_wrapper)
         # WordNet defaults to english. Set the default language to French ('fra')
@@ -92,25 +93,36 @@ def generate_adversarial_example(dataset, attack_recipe, tad_classifier):
     attack_recipe_name = attack_recipe.__name__
     sent_attacker = SentAttacker(tad_classifier, attack_recipe)
 
-    filter_key_words = ['.py', '.md', 'readme', 'log', 'result', 'zip', '.state_dict', '.model', '.png', 'acc_', 'f1_', '.origin', '.adv', '.csv']
+    filter_key_words = ['.py', '.md', 'readme', 'log', 'result', 'zip', '.state_dict', '.model', '.png', 'acc_', 'f1_', '.origin', '.adv', '.csv', '.org', '.defense', ]
 
     dataset_file = {'train': [], 'test': [], 'valid': []}
 
-    search_path = './'
-    task = 'text_defense'
-    dataset_file['train'] += find_files(search_path, [dataset, 'train', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'test.', 'synthesized'] + filter_key_words)
-    dataset_file['test'] += find_files(search_path, [dataset, 'test', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
-    dataset_file['valid'] += find_files(search_path, [dataset, 'valid', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
-    dataset_file['valid'] += find_files(search_path, [dataset, 'dev', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
+    # search_path = './'
+    # task = 'text_defense'
+    # dataset_file['train'] += find_files(search_path, [dataset, 'train', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'test.', 'synthesized'] + filter_key_words)
+    # dataset_file['test'] += find_files(search_path, [dataset, 'test', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
+    # dataset_file['valid'] += find_files(search_path, [dataset, 'valid', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
+    # dataset_file['valid'] += find_files(search_path, [dataset, 'dev', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
+    # dataset_file = {'train': [], 'test': [], 'valid': []}
+
+    dataset_file = detect_dataset(dataset, task='text_defense')
+    # task = 'text_defense'
+    # dataset_file['train'] += find_cwd_files( [dataset, 'train', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'test.', 'synthesized'] + filter_key_words)
+    # dataset_file['test'] += find_cwd_files( [dataset, 'test', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
+    # dataset_file['valid'] += find_cwd_files( [dataset, 'valid', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
+    # dataset_file['valid'] += find_cwd_files( [dataset, 'dev', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
 
     for dat_type in [
-        'train',
+        # 'train',
         'valid',
         'test'
     ]:
         data = []
         label_set = set()
         for data_file in dataset_file[dat_type]:
+            for key in filter_key_words:
+                if key in data_file:
+                    continue
             print("Attack: {}".format(data_file))
 
             with open(data_file, mode='r', encoding='utf8') as fin:
@@ -186,14 +198,20 @@ if __name__ == '__main__':
 
     datasets = [
         # 'SST2',
-        'AGNews10k',
+        # 'AGNews10k',
         # 'Yelp10K'
         # 'IMDB10k',
+        'Amazon',
+
     ]
 
     for dataset in datasets:
-        tad_classifier = TADCheckpointManager.get_tad_text_classifier(
-            'tadbert_{}{}'.format(dataset, attack_name),
+        # tad_classifier = TADCheckpointManager.get_tad_text_classifier(
+        #     'tadbert_{}{}'.format(dataset, attack_name),
+        #     auto_device=autocuda.auto_cuda()
+        # )
+        tad_classifier = TCCheckpointManager.get_text_classifier(
+            '{}'.format(dataset),
             auto_device=autocuda.auto_cuda()
         )
         attack_recipes = {

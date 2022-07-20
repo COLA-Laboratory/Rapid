@@ -40,7 +40,7 @@ if "TF_CPP_MIN_LOG_LEVEL" not in os.environ:
 device = autocuda.auto_cuda()
 
 
-class PyABSAMOdelWrapper(HuggingFaceModelWrapper):
+class PyABSAModelWrapper(HuggingFaceModelWrapper):
     """ Transformers sentiment analysis pipeline returns a list of responses
         like
 
@@ -73,7 +73,7 @@ class SentAttacker:
         # model_wrapper = HuggingFaceSentimentAnalysisPipelineWrapper(sent_pipeline)
         # model_wrapper = HuggingFaceModelWrapper(model=model, tokenizer=tokenizer)
         model = model
-        model_wrapper = PyABSAMOdelWrapper(model)
+        model_wrapper = PyABSAModelWrapper(model)
 
         recipe = recipe_class.build(model_wrapper)
         # WordNet defaults to english. Set the default language to French ('fra')

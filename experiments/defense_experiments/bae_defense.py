@@ -30,9 +30,9 @@ import os
 import autocuda
 from pyabsa import TCConfigManager, GloVeTCModelList, TCDatasetList, BERTTCModelList
 
-from boost_aug import TCBoostAug, AugmentBackend
-
-from utils import get_ensembled_tc_results
+# from boost_aug import TCBoostAug, AugmentBackend
+#
+# from utils import get_ensembled_tc_results
 
 if "TF_CPP_MIN_LOG_LEVEL" not in os.environ:
     os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
@@ -40,7 +40,7 @@ if "TF_CPP_MIN_LOG_LEVEL" not in os.environ:
 device = autocuda.auto_cuda()
 
 
-class PyABSAMOdelWrapper(HuggingFaceModelWrapper):
+class PyABSAModelWrapper(HuggingFaceModelWrapper):
     """ Transformers sentiment analysis pipeline returns a list of responses
         like
 
@@ -73,7 +73,7 @@ class SentAttacker:
         # model_wrapper = HuggingFaceSentimentAnalysisPipelineWrapper(sent_pipeline)
         # model_wrapper = HuggingFaceModelWrapper(model=model, tokenizer=tokenizer)
         model = model
-        model_wrapper = PyABSAMOdelWrapper(model)
+        model_wrapper = PyABSAModelWrapper(model)
 
         recipe = recipe_class.build(model_wrapper)
         # WordNet defaults to english. Set the default language to French ('fra')
@@ -221,7 +221,6 @@ def generate_adversarial_example(dataset, attack_recipe, augmentor):
                     # elif result.original_result.ground_truth_output == result.original_result.output and \
                     #     result.original_result.ground_truth_output == result.perturbed_result.output:
                     #     acc_count += 1
-
 
             print(colored('Accuracy Under Attack: {}'.format(acc_count / len(data)), 'green'))
 
