@@ -24,7 +24,7 @@ import autocuda
 from pyabsa import TADCheckpointManager
 
 os.environ['PYTHONIOENCODING'] = 'UTF8'
-os.environ['CUDA_VISIBLE_DEVICES'] = str(autocuda.auto_cuda_index())
+
 
 # Quiet TensorFlow.
 def get_ensembled_tad_results(results):
@@ -125,7 +125,7 @@ def evaluate_tad(dataset, attack_recipe):
         data = []
         label_set = set()
         for data_file in dataset_file[dat_type]:
-            print("Attack: {}".format(data_file))
+            print(colored("Attack: {}".format(data_file), 'green'))
 
             with open(data_file, mode='r', encoding='utf8') as fin:
                 lines = fin.readlines()
@@ -136,35 +136,41 @@ def evaluate_tad(dataset, attack_recipe):
                     data.append((text, label))
                     label_set.add(label)
 
-            count = 1e-10
-            def_count = 1e-10
+            all_num = 1e-10
+            def_num = 1e-10
             acc_count = 0.
             def_acc_count = 0.
+            det_acc_count = 0.
             it = tqdm.tqdm(data, postfix='testing ...')
             for text, label in it:
                 result = sent_attacker.attacker.simple_attack(text, label)
-                infer_res = tad_classifier.infer(
+                if isinstance(result, SuccessfulAttackResult):
+                    infer_res = tad_classifier.infer(
                         result.perturbed_result.attacked_text.text + '!ref!{},{},{}'.format(result.original_result.ground_truth_output, 1, result.perturbed_result.output),
                         print_result=False,
-                        # defense=attack_name,
                         defense='pwws'
-                        # defense='textfooler'
                     )
-                fixed_label = infer_res['label']
-                if isinstance(result, SuccessfulAttackResult):
-                    def_count += 1
-                    if fixed_label == str(result.original_result.ground_truth_output):
+                    def_num += 1
+                    if infer_res['label'] == str(result.original_result.ground_truth_output):
                         def_acc_count += 1
-                count += 1
-                if fixed_label == str(result.original_result.ground_truth_output):
+                    if infer_res['is_adv_label'] == '1':
+                        det_acc_count += 1
+                else:
+                    infer_res = tad_classifier.infer(
+                        result.original_result.attacked_text.text + '!ref!{},{},{}'.format(result.original_result.ground_truth_output, 1, result.perturbed_result.output),
+                        print_result=False,
+                    )
+                all_num += 1
+                if infer_res['label'] == str(result.original_result.ground_truth_output):
                     acc_count += 1
-                it.postfix = colored('DA: {}% | RA: {}%'.format(
-                    round(def_acc_count / def_count * 100, 2), round(acc_count / count * 100, 2)), 'green')
+                it.postfix = colored('Det Acc:{}|TAD Acc: {}|Res Acc: {}'.format(
+                    round(det_acc_count / def_num * 100, 2),
+                    round(def_acc_count / def_num * 100, 2),
+                    round(acc_count / all_num * 100, 2)), 'green')
                 it.update()
-            print(colored('Restored Accuracy: {}%'.format(acc_count / count), 'green'))
-
-            mv.add_metric('Defense Accuracy', def_acc_count / def_count * 100)
-            mv.add_metric('Restored Accuracy', acc_count / count * 100)
+            mv.add_metric('Detection Accuracy', det_acc_count / def_num * 100)
+            mv.add_metric('Defense Accuracy', def_acc_count / def_num * 100)
+            mv.add_metric('Restored Accuracy', acc_count / all_num * 100)
 
 if __name__ == '__main__':
 
@@ -186,9 +192,9 @@ if __name__ == '__main__':
             f'tadbert_AGNews10K',
             # f'TAD-{dataset}{attack_name}',
             # f'TAD-{dataset}',
-            # f'TAD-{dataset}',
             # f'tadbert_{dataset}{attack_name}',
-            auto_device=autocuda.auto_cuda()
+            # auto_device=autocuda.auto_cuda()
+            auto_device='cuda:1'
         )
         attack_recipes = {
             'bae': BAEGarg2019,

@@ -26,7 +26,7 @@ def get_config():
     # config.pretrained_bert = 'bert-base-uncased'
     # config.patience = 5
     config.evaluate_begin = 0
-    config.max_seq_len = 160
+    config.max_seq_len = 80
     config.log_step = -1
     config.dropout = 0.5
     config.learning_rate = 1e-5
