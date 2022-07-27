@@ -23,8 +23,8 @@ def get_config():
     config = TADConfigManager.get_tad_config_english()
     config.model = BERTTADModelList.TADBERT
     config.num_epoch = 30
-    config.pretrained_bert = 'bert-base-uncased'
-    config.patience = 5
+    # config.pretrained_bert = 'bert-base-uncased'
+    # config.patience = 5
     config.evaluate_begin = 0
     config.max_seq_len = 160
     config.log_step = -1
@@ -42,21 +42,21 @@ text_classifier = TADTrainer(config=get_config(),
                              checkpoint_save_mode=1,
                              auto_device=True
                              ).load_trained_model()
-# dataset = DatasetItem('AmazonBAE')
-# text_classifier = TADTrainer(config=get_config(),
-#                              dataset=dataset,
-#                              checkpoint_save_mode=1,
-#                              auto_device=True
-#                              ).load_trained_model()
+dataset = DatasetItem('AmazonBAE')
+text_classifier = TADTrainer(config=get_config(),
+                             dataset=dataset,
+                             checkpoint_save_mode=1,
+                             auto_device=True
+                             ).load_trained_model()
 dataset = DatasetItem('AmazonPWWS')
 text_classifier = TADTrainer(config=get_config(),
                              dataset=dataset,
                              checkpoint_save_mode=1,
                              auto_device=True
                              ).load_trained_model()
-# dataset = DatasetItem('AmazonTextFooler')
-# text_classifier = TADTrainer(config=get_config(),
-#                              dataset=dataset,
-#                              checkpoint_save_mode=1,
-#                              auto_device=True
-#                              ).load_trained_model()
+dataset = DatasetItem('AmazonTextFooler')
+text_classifier = TADTrainer(config=get_config(),
+                             dataset=dataset,
+                             checkpoint_save_mode=1,
+                             auto_device=True
+                             ).load_trained_model()

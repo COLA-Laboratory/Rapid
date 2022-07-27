@@ -8,10 +8,8 @@
 # Copyright (C) 2021. All Rights Reserved.
 
 
-import os
 import warnings
 
-import findfile
 import torch.optim
 
 from pyabsa import TextClassificationTrainer, ClassificationConfigManager, ClassificationDatasetList, TCConfigManager
@@ -35,7 +33,8 @@ classification_config_english.seed = {12}
 classification_config_english.l2reg = 1e-8
 classification_config_english.cross_validate_fold = -1
 
-dataset = DatasetItem('Amazon', 'Amazon')
+# dataset = DatasetItem('Amazon', 'Amazon')
+dataset = ClassificationDatasetList.AGNews10K
 text_classifier = TextClassificationTrainer(config=classification_config_english,
                                             dataset=dataset,
                                             checkpoint_save_mode=1,

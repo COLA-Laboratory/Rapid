@@ -10,8 +10,9 @@ from pyabsa import TextClassificationTrainer, ClassificationDatasetList, TCConfi
 classification_config_english = TCConfigManager.get_classification_config_english()
 classification_config_english.model = BERTTCModelList.BERT
 classification_config_english.num_epoch = 10
+classification_config_english.pretrained_bert = 'bert-base-uncased'
 classification_config_english.evaluate_begin = 0
-classification_config_english.max_seq_len = 100
+classification_config_english.max_seq_len = 80
 classification_config_english.log_step = -1
 classification_config_english.dropout = 0.5
 classification_config_english.cache_dataset = False

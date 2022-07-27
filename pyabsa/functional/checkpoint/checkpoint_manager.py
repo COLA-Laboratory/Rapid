@@ -31,7 +31,7 @@ def unzip_checkpoint(zip_path):
         if not os.path.exists(zip_path):
             os.makedirs(zip_path.replace('.zip', ''))
         z = zipfile.ZipFile(zip_path, 'r')
-        z.extractall(os.path.dirname(zip_path))
+        z.extractall(os.path.dirname(zip_path.replace('.zip', '')))
         print('Done.')
     except zipfile.BadZipfile:
         print('Unzip failed'.format(zip_path))

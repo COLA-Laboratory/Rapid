@@ -97,15 +97,15 @@ def generate_adversarial_example(dataset, attack_recipe, tad_classifier):
 
     dataset_file = {'train': [], 'test': [], 'valid': []}
 
-    # search_path = './'
-    # task = 'text_defense'
-    # dataset_file['train'] += find_files(search_path, [dataset, 'train', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'test.', 'synthesized'] + filter_key_words)
-    # dataset_file['test'] += find_files(search_path, [dataset, 'test', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
-    # dataset_file['valid'] += find_files(search_path, [dataset, 'valid', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
-    # dataset_file['valid'] += find_files(search_path, [dataset, 'dev', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
-    # dataset_file = {'train': [], 'test': [], 'valid': []}
+    search_path = './'
+    task = 'text_defense'
+    dataset_file['train'] += find_files(search_path, [dataset, 'train', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'test.', 'synthesized'] + filter_key_words)
+    dataset_file['test'] += find_files(search_path, [dataset, 'test', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
+    dataset_file['valid'] += find_files(search_path, [dataset, 'valid', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
+    dataset_file['valid'] += find_files(search_path, [dataset, 'dev', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
 
-    dataset_file = detect_dataset(dataset, task='text_defense')
+    # dataset_file = {'train': [], 'test': [], 'valid': []}
+    # dataset_file = detect_dataset(dataset, task='text_defense')
     # task = 'text_defense'
     # dataset_file['train'] += find_cwd_files( [dataset, 'train', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'test.', 'synthesized'] + filter_key_words)
     # dataset_file['test'] += find_cwd_files( [dataset, 'test', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
@@ -198,10 +198,10 @@ if __name__ == '__main__':
 
     datasets = [
         # 'SST2',
-        # 'AGNews10k',
+        'AGNews10k',
         # 'Yelp10K'
         # 'IMDB10k',
-        'Amazon',
+        # 'Amazon',
 
     ]
 
