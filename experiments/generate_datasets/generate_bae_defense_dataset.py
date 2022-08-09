@@ -96,21 +96,14 @@ def generate_adversarial_example(dataset, attack_recipe, tad_classifier):
     filter_key_words = ['.py', '.md', 'readme', 'log', 'result', 'zip', '.state_dict', '.model', '.png', 'acc_', 'f1_', '.origin', '.adv', '.csv']
     dataset_file = {'train': [], 'test': [], 'valid': []}
     search_path = './'
-    task = 'text_defense'
+    task = 'text_classification'
     dataset_file['train'] += find_files(search_path, [dataset, 'train', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'test.', 'synthesized'] + filter_key_words)
     dataset_file['test'] += find_files(search_path, [dataset, 'test', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
     dataset_file['valid'] += find_files(search_path, [dataset, 'valid', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
     dataset_file['valid'] += find_files(search_path, [dataset, 'dev', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
 
-    # dataset_file = detect_dataset(dataset, task='text_defense')
-    # task = 'text_defense'
-    # dataset_file['train'] += find_cwd_files( [dataset, 'train', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'test.', 'synthesized'] + filter_key_words)
-    # dataset_file['test'] += find_cwd_files( [dataset, 'test', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
-    # dataset_file['valid'] += find_cwd_files( [dataset, 'valid', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
-    # dataset_file['valid'] += find_cwd_files( [dataset, 'dev', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
-
     for dat_type in [
-        # 'train',
+        'train',
         'valid',
         'test'
     ]:
@@ -129,7 +122,8 @@ def generate_adversarial_example(dataset, attack_recipe, tad_classifier):
                     label_set.add(label)
 
             print(label_set)
-            len_per_fold = len(data) // 10
+            # len_per_fold = len(data) // 10
+            len_per_fold = len(data)
             folds = [data[i: i + len_per_fold] for i in range(0, len(data), len_per_fold)]
             for i in range(len(folds)):
                 adv_data = []
@@ -161,7 +155,8 @@ def generate_adversarial_example(dataset, attack_recipe, tad_classifier):
                     if new_data['perturb_label'] != new_data['origin_label']:
                         adv_data.append('{}$LABEL${},{},{}\n'.format(
                             new_data['adv_text'],
-                            new_data['origin_label'],
+                            # new_data['origin_label'],
+                            -100,
                             new_data['is_adv'],
                             new_data['perturb_label'],
                         ))
@@ -192,10 +187,8 @@ if __name__ == '__main__':
 
     datasets = [
         # 'SST2',
-        'AGNews10k',
-        # 'Yelp10K'
-        # 'IMDB10k',
-        # 'Amazon',
+        # 'AGNews10k',
+        'Amazon',
     ]
 
     for dataset in datasets:

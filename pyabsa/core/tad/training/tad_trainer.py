@@ -259,7 +259,9 @@ class Instructor:
                 sen_loss = criterion(sen_logits, label_targets)
                 adv_det_loss = criterion(adv_det_logits, adv_det_targets)
                 adv_train_loss = criterion(adv_tr_logits, adv_tr_targets)
-                loss = sen_loss + self.opt.args.get('adv_det_weight', 5) * adv_det_loss + self.opt.args.get('adv_train_weight', 5) * adv_train_loss
+                # loss = sen_loss + self.opt.args.get('adv_det_weight', 5) * adv_det_loss + self.opt.args.get('adv_train_weight', 5) * adv_train_loss
+                loss = sen_loss
+
                 losses.append(loss.item())
 
                 if amp:

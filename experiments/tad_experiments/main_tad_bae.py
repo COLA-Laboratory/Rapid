@@ -102,7 +102,7 @@ class SentAttacker:
         self.attacker = Attacker(recipe, _dataset)
 
 
-def generate_adversarial_example(dataset, attack_recipe):
+def adversarial_attack_detection_and_defense(dataset, attack_recipe):
     attack_recipe_name = attack_recipe.__name__
     sent_attacker = SentAttacker(tad_classifier, attack_recipe)
 
@@ -189,8 +189,8 @@ if __name__ == '__main__':
 
     for dataset in datasets:
         tad_classifier = TADCheckpointManager.get_tad_text_classifier(
-            # f'TAD-{dataset}{attack_name}',
-            f'TAD-{dataset}',
+            f'TAD-{dataset}{attack_name}',
+            # f'TAD-{dataset}',
             # f'tadbert_{dataset}{attack_name}',
             # auto_device=autocuda.auto_cuda()
             auto_device='cuda:1'
@@ -206,5 +206,5 @@ if __name__ == '__main__':
         }
         mv = MetricVisualizer(name='main_tad_bae')
         for _ in range(1):
-            generate_adversarial_example(dataset, attack_recipe=attack_recipes[attack_name.lower()])
+            adversarial_attack_detection_and_defense(dataset, attack_recipe=attack_recipes[attack_name.lower()])
         mv.summary('')

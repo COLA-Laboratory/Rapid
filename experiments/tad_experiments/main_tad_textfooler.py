@@ -189,8 +189,7 @@ if __name__ == '__main__':
 
     for dataset in datasets:
         tad_classifier = TADCheckpointManager.get_tad_text_classifier(
-            f'tadbert_AGNews10K',
-            # f'TAD-{dataset}{attack_name}',
+            f'TAD-{dataset}{attack_name}',
             # f'TAD-{dataset}',
             # f'tadbert_{dataset}{attack_name}',
             # auto_device=autocuda.auto_cuda()

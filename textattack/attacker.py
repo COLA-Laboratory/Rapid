@@ -9,12 +9,14 @@ import multiprocessing as mp
 import os
 import queue
 import random
+import signal
 import traceback
 
 import torch
 import tqdm
 
 import textattack
+
 from textattack.attack_results import (
     FailedAttackResult,
     MaximizedAttackResult,
@@ -25,6 +27,29 @@ from textattack.shared.utils import logger
 
 from .attack import Attack
 from .attack_args import AttackArgs
+
+
+def time_out(interval, callback=None):
+    def decorator(func):
+        def handler(signum, frame):
+            raise TimeoutError("Func: {} timeout".format(func.__name__))
+
+        def wrapper(*args, **kwargs):
+            try:
+                signal.signal(signal.SIGALRM, handler)
+                signal.alarm(interval)  # interval秒后向进程发送SIGALRM信号
+                result = func(*args, **kwargs)
+                signal.alarm(0)  # 函数在规定时间执行完后关闭alarm闹钟
+                return result
+            except TimeoutError as e:
+                if callback:
+                    callback(e)
+                else:
+                    raise e
+
+        return wrapper
+    return decorator
+
 
 
 class Attacker:
@@ -92,7 +117,7 @@ class Attacker:
     def _get_worklist(self, start, end, num_examples, shuffle):
         if end - start < num_examples:
             logger.warn(
-                f"Attempting to attack {num_examples} samples when only {end-start} are available."
+                f"Attempting to attack {num_examples} samples when only {end - start} are available."
             )
         candidates = list(range(start, end))
         if shuffle:
@@ -101,7 +126,7 @@ class Attacker:
         candidates = collections.deque(candidates[num_examples:])
         assert (len(worklist) + len(candidates)) == (end - start)
         return worklist, candidates
-    
+    @time_out(400)
     def simple_attack(self, text, label):
         """Internal method that carries out attack.
 

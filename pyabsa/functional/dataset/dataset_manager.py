@@ -225,7 +225,7 @@ def detect_infer_dataset(dataset_path, task='apc'):
     dataset_file = []
     for d in dataset_path:
         if not os.path.exists(d) or hasattr(ABSADatasetList, d) or hasattr(TCDatasetList, d):
-            print('Loading {} dataset from:  {}'.format(d, 'https://github.com/yangheng95/ABSADatasets'))
+            print('Loading {} dataset from:  {}'.format(d, 'https://github.com/yangheng95/TADDatasets'))
             download_datasets_from_github(os.getcwd())
             search_path = find_dir(os.getcwd(), [d, task, 'dataset'], exclude_key=filter_key_words, disable_alert=False)
             dataset_file += find_files(search_path, ['.inference', d], exclude_key=['train.'] + filter_key_words)

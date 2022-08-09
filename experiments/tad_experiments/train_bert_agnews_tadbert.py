@@ -16,14 +16,14 @@ from pyabsa import TCTrainer, TADConfigManager, TCDatasetList, BERTTADModelList,
 from pyabsa.functional.dataset.dataset_manager import AdvTCDatasetList, DatasetItem
 
 warnings.filterwarnings('ignore')
-seeds = [random.randint(1, 10000) for _ in range(1)]
+seeds = [random.randint(1, 10000) for _ in range(3)]
 
 
 def get_config():
     config = TADConfigManager.get_tad_config_english()
     config.model = BERTTADModelList.TADBERT
     config.num_epoch = 30
-    config.pretrained_bert = 'bert-base-uncased'
+    # config.pretrained_bert = 'bert-base-uncased'
     # config.patience = 5
     config.evaluate_begin = 0
     config.max_seq_len = 80
