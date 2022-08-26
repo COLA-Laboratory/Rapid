@@ -65,13 +65,13 @@ class Dataset(torch.utils.data.Dataset):
     """
 
     def __init__(
-        self,
-        dataset,
-        input_columns=["text"],
-        label_map=None,
-        label_names=None,
-        output_scale_factor=None,
-        shuffle=False,
+            self,
+            dataset,
+            input_columns=["text"],
+            label_map=None,
+            label_names=None,
+            output_scale_factor=None,
+            shuffle=False,
     ):
         self._dataset = dataset
         self.input_columns = input_columns

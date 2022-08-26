@@ -12,13 +12,13 @@ from .word_swap import WordSwap
 
 class WordSwapChangeName(WordSwap):
     def __init__(
-        self,
-        num_name_replacements=3,
-        first_only=False,
-        last_only=False,
-        confidence_score=0.7,
-        language="en",
-        **kwargs
+            self,
+            num_name_replacements=3,
+            first_only=False,
+            last_only=False,
+            confidence_score=0.7,
+            language="en",
+            **kwargs
     ):
         """Transforms an input by replacing names of recognized name entity.
 
@@ -68,15 +68,15 @@ class WordSwapChangeName(WordSwap):
         replacement_words = []
         tag = word_part_of_speech
         if (
-            tag.value in ("B-PER", "S-PER")
-            and tag.score >= self.confidence_score
-            and not self.last_only
+                tag.value in ("B-PER", "S-PER")
+                and tag.score >= self.confidence_score
+                and not self.last_only
         ):
             replacement_words = self._get_firstname(word)
         elif (
-            tag.value in ("E-PER", "S-PER")
-            and tag.score >= self.confidence_score
-            and not self.first_only
+                tag.value in ("E-PER", "S-PER")
+                and tag.score >= self.confidence_score
+                and not self.first_only
         ):
             replacement_words = self._get_lastname(word)
         return replacement_words

@@ -77,7 +77,7 @@ class AttackResumeCommand(TextAttackCommand):
             type=str,
             required=True,
             help='Path of checkpoint file to resume attack from. If "latest" (or "{directory path}/latest") is entered,'
-            "recover latest checkpoint from either current path or specified directory.",
+                 "recover latest checkpoint from either current path or specified directory.",
         )
 
         resume_parser.add_argument(

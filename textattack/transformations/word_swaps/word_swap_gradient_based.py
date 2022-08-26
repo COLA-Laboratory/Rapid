@@ -112,7 +112,7 @@ class WordSwapGradientBased(WordSwap):
         """
         transformations = []
         for word, idx in self._get_replacement_words_by_grad(
-            attacked_text, indices_to_replace
+                attacked_text, indices_to_replace
         ):
             transformations.append(attacked_text.replace_word_at_index(idx, word))
         return transformations

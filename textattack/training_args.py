@@ -120,34 +120,34 @@ class TrainingArgs:
     def __post_init__(self):
         assert self.num_epochs > 0, "`num_epochs` must be greater than 0."
         assert (
-            self.num_clean_epochs >= 0
+                self.num_clean_epochs >= 0
         ), "`num_clean_epochs` must be greater than or equal to 0."
         if self.early_stopping_epochs is not None:
             assert (
-                self.early_stopping_epochs > 0
+                    self.early_stopping_epochs > 0
             ), "`early_stopping_epochs` must be greater than 0."
         if self.attack_epoch_interval is not None:
             assert (
-                self.attack_epoch_interval > 0
+                    self.attack_epoch_interval > 0
             ), "`attack_epoch_interval` must be greater than 0."
         assert (
-            self.num_warmup_steps >= 0
+                self.num_warmup_steps >= 0
         ), "`num_warmup_steps` must be greater than or equal to 0."
         assert (
-            self.gradient_accumulation_steps > 0
+                self.gradient_accumulation_steps > 0
         ), "`gradient_accumulation_steps` must be greater than 0."
         assert (
-            self.num_clean_epochs <= self.num_epochs
+                self.num_clean_epochs <= self.num_epochs
         ), f"`num_clean_epochs` cannot be greater than `num_epochs` ({self.num_clean_epochs} > {self.num_epochs})."
 
         if isinstance(self.num_train_adv_examples, float):
             assert (
-                self.num_train_adv_examples >= 0.0
-                and self.num_train_adv_examples <= 1.0
+                    self.num_train_adv_examples >= 0.0
+                    and self.num_train_adv_examples <= 1.0
             ), "If `num_train_adv_examples` is float, it must be between 0 and 1."
         elif isinstance(self.num_train_adv_examples, int):
             assert (
-                self.num_train_adv_examples > 0 or self.num_train_adv_examples == -1
+                    self.num_train_adv_examples > 0 or self.num_train_adv_examples == -1
             ), "If `num_train_adv_examples` is int, it must be greater than 0 or equal to -1."
         else:
             raise TypeError(
@@ -364,7 +364,7 @@ class _CommandLineTrainingArgs:
             type=str,
             required=True,
             help='Name or path of the model we want to create. "lstm" and "cnn" will create TextAttack\'s LSTM and CNN models while'
-            ' any other input will be used to create Transformers model. (e.g."brt-base-uncased").',
+                 ' any other input will be used to create Transformers model. (e.g."brt-base-uncased").',
         )
         parser.add_argument(
             "--model-max-length",
@@ -397,22 +397,22 @@ class _CommandLineTrainingArgs:
             required=True,
             default="yelp",
             help="dataset for training; will be loaded from "
-            "`datasets` library. if dataset has a subset, separate with a colon. "
-            " ex: `glue^sst2` or `rotten_tomatoes`",
+                 "`datasets` library. if dataset has a subset, separate with a colon. "
+                 " ex: `glue^sst2` or `rotten_tomatoes`",
         )
         parser.add_argument(
             "--dataset-train-split",
             type=str,
             default="",
             help="train dataset split, if non-standard "
-            "(can automatically detect 'train'",
+                 "(can automatically detect 'train'",
         )
         parser.add_argument(
             "--dataset-eval-split",
             type=str,
             default="",
             help="val dataset split, if non-standard "
-            "(can automatically detect 'dev', 'validation', 'eval')",
+                 "(can automatically detect 'dev', 'validation', 'eval')",
         )
         parser.add_argument(
             "--filter-train-by-labels",
@@ -544,10 +544,9 @@ class _CommandLineTrainingArgs:
 
         # Only Perform labels checks if output_column is equal to label.
         if (
-            train_dataset.output_column == "label"
-            and eval_dataset.output_column == "label"
+                train_dataset.output_column == "label"
+                and eval_dataset.output_column == "label"
         ):
-
             train_dataset_labels = train_dataset._dataset["label"]
 
             eval_dataset_labels = eval_dataset._dataset["label"]
@@ -558,7 +557,7 @@ class _CommandLineTrainingArgs:
                 label >= 0
                 for label in train_dataset_labels_set
                 if isinstance(label, int)
-            ), f"Train dataset has negative label/s {[label for label in train_dataset_labels_set if isinstance(label,int) and label < 0 ]} which is/are not supported by pytorch.Use --filter-train-by-labels to keep suitable labels"
+            ), f"Train dataset has negative label/s {[label for label in train_dataset_labels_set if isinstance(label, int) and label < 0]} which is/are not supported by pytorch.Use --filter-train-by-labels to keep suitable labels"
 
             assert num_labels >= len(
                 train_dataset_labels_set
@@ -570,7 +569,7 @@ class _CommandLineTrainingArgs:
                 label >= 0
                 for label in eval_dataset_labels_set
                 if isinstance(label, int)
-            ), f"Eval dataset has negative label/s {[label for label in eval_dataset_labels_set if isinstance(label,int) and label < 0 ]} which is/are not supported by pytorch.Use --filter-eval-by-labels to keep suitable labels"
+            ), f"Eval dataset has negative label/s {[label for label in eval_dataset_labels_set if isinstance(label, int) and label < 0]} which is/are not supported by pytorch.Use --filter-eval-by-labels to keep suitable labels"
 
             assert num_labels >= len(
                 set(eval_dataset_labels_set)
@@ -585,7 +584,7 @@ class _CommandLineTrainingArgs:
         if args.attack is None:
             return None
         assert (
-            args.attack in ATTACK_RECIPE_NAMES
+                args.attack in ATTACK_RECIPE_NAMES
         ), f"Unavailable attack recipe {args.attack}"
         attack = eval(f"{ATTACK_RECIPE_NAMES[args.attack]}.build(model_wrapper)")
         assert isinstance(

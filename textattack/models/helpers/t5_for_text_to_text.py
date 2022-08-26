@@ -37,12 +37,12 @@ class T5ForTextToText(torch.nn.Module):
     """
 
     def __init__(
-        self,
-        mode="english_to_german",
-        output_max_length=20,
-        input_max_length=64,
-        num_beams=1,
-        early_stopping=True,
+            self,
+            mode="english_to_german",
+            output_max_length=20,
+            input_max_length=64,
+            num_beams=1,
+            early_stopping=True,
     ):
         super().__init__()
         self.model = transformers.T5ForConditionalGeneration.from_pretrained("t5-base")

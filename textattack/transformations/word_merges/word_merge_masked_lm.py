@@ -34,14 +34,14 @@ class WordMergeMaskedLM(Transformation):
     """
 
     def __init__(
-        self,
-        masked_language_model="bert-base-uncased",
-        tokenizer=None,
-        max_length=512,
-        window_size=float("inf"),
-        max_candidates=50,
-        min_confidence=5e-4,
-        batch_size=16,
+            self,
+            masked_language_model="bert-base-uncased",
+            tokenizer=None,
+            max_length=512,
+            window_size=float("inf"),
+            max_candidates=50,
+            min_confidence=5e-4,
+            batch_size=16,
     ):
         super().__init__()
         self.max_length = max_length
@@ -106,7 +106,7 @@ class WordMergeMaskedLM(Transformation):
         # 2-D list where for each index to modify we have a list of replacement words
         replacement_words = []
         while i < len(masked_texts):
-            inputs = self._encode_text(masked_texts[i : i + self.batch_size])
+            inputs = self._encode_text(masked_texts[i: i + self.batch_size])
             ids = [
                 inputs["input_ids"][i].tolist() for i in range(len(inputs["input_ids"]))
             ]
@@ -129,23 +129,23 @@ class WordMergeMaskedLM(Transformation):
                     _id = _id.item()
                     word = self._lm_tokenizer.convert_ids_to_tokens(_id)
                     if utils.check_if_subword(
-                        word,
-                        self._language_model.config.model_type,
-                        (masked_index == 1),
+                            word,
+                            self._language_model.config.model_type,
+                            (masked_index == 1),
                     ):
                         word = utils.strip_BPE_artifacts(
                             word, self._language_model.config.model_type
                         )
                     if (
-                        mask_token_probs[_id] >= self.min_confidence
-                        and utils.is_one_word(word)
-                        and not utils.check_if_punctuations(word)
+                            mask_token_probs[_id] >= self.min_confidence
+                            and utils.is_one_word(word)
+                            and not utils.check_if_punctuations(word)
                     ):
                         top_words.append(word)
 
                     if (
-                        len(top_words) >= self.max_candidates
-                        or mask_token_probs[_id] < self.min_confidence
+                            len(top_words) >= self.max_candidates
+                            or mask_token_probs[_id] < self.min_confidence
                     ):
                         break
 

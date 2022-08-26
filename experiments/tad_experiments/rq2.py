@@ -20,7 +20,7 @@ from termcolor import colored
 from pyabsa import TCCheckpointManager, TCDatasetList, TADCheckpointManager
 from pyabsa.functional.dataset.dataset_manager import AdvTCDatasetList, DatasetItem, detect_dataset
 from textattack import Attacker
-from textattack.attack_recipes import BAEGarg2019, PWWSRen2019, TextFoolerJin2019, PSOZang2020, IGAWang2019, GeneticAlgorithmAlzantot2018, DeepWordBugGao2018
+from textattack.attack_recipes import BAEGarg2019, PWWSRen2019, TextFoolerJin2019, PSOZang2020, IGAWang2019, GeneticAlgorithmAlzantot2018, DeepWordBugGao2018, CLARE2020
 from textattack.attack_results import SuccessfulAttackResult
 from textattack.datasets import Dataset
 from textattack.models.wrappers import HuggingFaceModelWrapper
@@ -169,6 +169,8 @@ if __name__ == '__main__':
         'iga': IGAWang2019,
         'ga': GeneticAlgorithmAlzantot2018,
         'wordbugger': DeepWordBugGao2018,
+        'clare': CLARE2020,
+
     }
     for dataset in [
         'SST2',
@@ -182,7 +184,8 @@ if __name__ == '__main__':
             'Multi-Attack',
         ]:
             for target_attacker in [
-                # 'PSO',
+                # 'clare',
+                'PSO',
                 'GA',
                 'wordbugger',
             ]:

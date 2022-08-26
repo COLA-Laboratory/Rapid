@@ -5,7 +5,6 @@ Word Swap by inflections
 
 """
 
-
 import random
 
 import lemminflect
@@ -90,7 +89,7 @@ class WordSwapInflections(WordSwap):
             word_to_replace = current_text.words[i]
             word_to_replace_pos = current_text.pos_of_word_index(i)
             replacement_words = (
-                self._get_replacement_words(word_to_replace, word_to_replace_pos) or []
+                    self._get_replacement_words(word_to_replace, word_to_replace_pos) or []
             )
             for r in replacement_words:
                 transformed_texts.append(current_text.replace_word_at_index(i, r))

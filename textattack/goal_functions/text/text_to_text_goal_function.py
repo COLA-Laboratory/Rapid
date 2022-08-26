@@ -4,7 +4,6 @@ Goal Function for TextToText
 -------------------------------------------------------
 """
 
-
 from textattack.goal_function_results import TextToTextGoalFunctionResult
 from textattack.goal_functions import GoalFunction
 

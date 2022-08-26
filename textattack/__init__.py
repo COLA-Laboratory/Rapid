@@ -35,5 +35,4 @@ from . import (
     transformations,
 )
 
-
 name = "textattack"

@@ -56,9 +56,9 @@ class QueryHandler:
         log_probs = []
         for start in range(0, len(sentences), batch_size):
             swapped_words_batch = swapped_words[
-                start : min(len(sentences), start + batch_size)
-            ]
-            batch = sentences[start : min(len(sentences), start + batch_size)]
+                                  start: min(len(sentences), start + batch_size)
+                                  ]
+            batch = sentences[start: min(len(sentences), start + batch_size)]
             raw_idx_list = [[] for i in range(sentence_length + 1)]
             for i, s in enumerate(batch):
                 s = [word for word in s if word in self.word_to_idx]

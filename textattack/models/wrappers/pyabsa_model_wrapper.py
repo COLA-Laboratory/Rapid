@@ -7,7 +7,7 @@
 from textattack.models.wrappers import HuggingFaceModelWrapper
 
 
-class PyABSAModelWrapper(HuggingFaceModelWrapper):
+class TADModelWrapper(HuggingFaceModelWrapper):
     """ Transformers sentiment analysis pipeline returns a list of responses
         like
 
@@ -24,6 +24,7 @@ class PyABSAModelWrapper(HuggingFaceModelWrapper):
     def __call__(self, text_inputs, **kwargs):
         outputs = []
         for text_input in text_inputs:
-            raw_outputs = self.model.infer(text_input, defense='pwws', print_result=False, **kwargs)
+            raw_outputs = self.model.infer(text_input, print_result=False, **kwargs)
             outputs.append(raw_outputs['probs'])
+
         return outputs

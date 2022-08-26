@@ -7,6 +7,8 @@
 
 import os
 
+import findfile
+
 from pyabsa import TCCheckpointManager, TCDatasetList, TADCheckpointManager
 from pyabsa.functional.dataset.dataset_manager import AdvTCDatasetList, DatasetItem
 
@@ -36,11 +38,13 @@ for dataset in [
     'AmazonPWWS',
     'AmazonTextFooler',
 ]:
+    inference_sets = DatasetItem(dataset, findfile.find_cwd_files([dataset, '.adv', '.inference']))
+
     text_classifier = TADCheckpointManager.get_tad_text_classifier(checkpoint=f'TAD-{dataset}',
                                                                    auto_device=True,  # Use CUDA if available
                                                                    )
 
-    inference_sets = DatasetItem(dataset)
+    # inference_sets = DatasetItem(dataset)
     results = text_classifier.batch_infer(target_file=inference_sets,
                                           print_result=False,
                                           save_result=False,
@@ -48,18 +52,18 @@ for dataset in [
                                           )
 
 
-    input('Press Enter to continue...')
-
-    text_classifier = TADCheckpointManager.get_tad_text_classifier(checkpoint=f'TAD-BERT-{dataset}',
-                                                                   auto_device=True,  # Use CUDA if available
-                                                                   )
-
-
-    inference_sets = DatasetItem(dataset)
-    results = text_classifier.batch_infer(target_file=inference_sets,
-                                          print_result=False,
-                                          save_result=False,
-                                          ignore_error=False,
-                                          )
-
-    input('Press Enter to continue...')
+    # input('Press Enter to continue...')
+    #
+    # text_classifier = TADCheckpointManager.get_tad_text_classifier(checkpoint=f'TAD-BERT-{dataset}',
+    #                                                                auto_device=True,  # Use CUDA if available
+    #                                                                )
+    #
+    #
+    # inference_sets = DatasetItem(dataset)
+    # results = text_classifier.batch_infer(target_file=inference_sets,
+    #                                       print_result=False,
+    #                                       save_result=False,
+    #                                       ignore_error=False,
+    #                                       )
+    #
+    # input('Press Enter to continue...')

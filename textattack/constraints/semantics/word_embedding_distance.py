@@ -23,13 +23,13 @@ class WordEmbeddingDistance(Constraint):
     """
 
     def __init__(
-        self,
-        embedding=None,
-        include_unknown_words=True,
-        min_cos_sim=None,
-        max_mse_dist=None,
-        cased=False,
-        compare_against_original=True,
+            self,
+            embedding=None,
+            include_unknown_words=True,
+            min_cos_sim=None,
+            max_mse_dist=None,
+            cased=False,
+            compare_against_original=True,
     ):
         super().__init__(compare_against_original)
         if embedding is None:
@@ -68,8 +68,8 @@ class WordEmbeddingDistance(Constraint):
 
         # FIXME The index i is sometimes larger than the number of tokens - 1
         if any(
-            i >= len(reference_text.words) or i >= len(transformed_text.words)
-            for i in indices
+                i >= len(reference_text.words) or i >= len(transformed_text.words)
+                for i in indices
         ):
             return False
 
@@ -122,8 +122,8 @@ class WordEmbeddingDistance(Constraint):
         else:
             metric = "min_cos_sim"
         return [
-            "embedding",
-            metric,
-            "cased",
-            "include_unknown_words",
-        ] + super().extra_repr_keys()
+                   "embedding",
+                   metric,
+                   "cased",
+                   "include_unknown_words",
+               ] + super().extra_repr_keys()

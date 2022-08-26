@@ -4,7 +4,6 @@ Glove Tokenizer
 
 """
 
-
 import json
 import tempfile
 
@@ -21,16 +20,16 @@ class WordLevelTokenizer(hf_tokenizers.implementations.BaseTokenizer):
     """
 
     def __init__(
-        self,
-        word_id_map={},
-        pad_token_id=None,
-        unk_token_id=None,
-        unk_token="[UNK]",
-        sep_token="[SEP]",
-        cls_token="[CLS]",
-        pad_token="[PAD]",
-        lowercase: bool = False,
-        unicode_normalizer=None,
+            self,
+            word_id_map={},
+            pad_token_id=None,
+            unk_token_id=None,
+            unk_token="[UNK]",
+            sep_token="[SEP]",
+            cls_token="[CLS]",
+            pad_token="[PAD]",
+            lowercase: bool = False,
+            unicode_normalizer=None,
     ):
         if pad_token_id:
             word_id_map[pad_token] = pad_token_id
@@ -46,7 +45,7 @@ class WordLevelTokenizer(hf_tokenizers.implementations.BaseTokenizer):
         word_list_file = tempfile.NamedTemporaryFile()
         word_list_file.write(json.dumps(word_id_map).encode())
 
-        word_level = hf_tokenizers.models.WordLevel(
+        word_level = hf_tokenizers.models.WordLevel.from_file(
             word_list_file.name, unk_token=str(unk_token)
         )
         tokenizer = hf_tokenizers.Tokenizer(word_level)
@@ -117,7 +116,7 @@ class GloveTokenizer(WordLevelTokenizer):
     """
 
     def __init__(
-        self, word_id_map={}, pad_token_id=None, unk_token_id=None, max_length=256
+            self, word_id_map={}, pad_token_id=None, unk_token_id=None, max_length=256
     ):
         super().__init__(
             word_id_map=word_id_map,

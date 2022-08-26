@@ -8,7 +8,7 @@ import json
 import os
 
 import tqdm
-from findfile import find_files
+from findfile import find_files, find_cwd_files
 
 # Quiet TensorFlow.
 import os
@@ -19,7 +19,15 @@ from pyabsa.functional.dataset import detect_dataset
 from transformers import AutoTokenizer, TFAutoModelForSequenceClassification, pipeline, AutoModelForSequenceClassification
 
 from textattack import Attacker
-from textattack.attack_recipes import BERTAttackLi2020, BAEGarg2019, PWWSRen2019, TextFoolerJin2019, PSOZang2020, IGAWang2019, GeneticAlgorithmAlzantot2018, DeepWordBugGao2018
+from textattack.attack_recipes import (BERTAttackLi2020,
+                                       BAEGarg2019,
+                                       CLARE2020,
+                                       PWWSRen2019,
+                                       TextFoolerJin2019,
+                                       PSOZang2020,
+                                       IGAWang2019,
+                                       GeneticAlgorithmAlzantot2018,
+                                       DeepWordBugGao2018)
 from textattack.attack_recipes import TextFoolerJin2019
 from textattack.attack_results import SuccessfulAttackResult
 from textattack.datasets import HuggingFaceDataset, Dataset
@@ -93,10 +101,8 @@ def generate_adversarial_example(dataset, attack_recipe, tad_classifier):
     attack_recipe_name = attack_recipe.__name__
     sent_attacker = SentAttacker(tad_classifier, attack_recipe)
 
-    filter_key_words = ['.py', '.md', 'readme', 'log', 'result', 'zip', '.state_dict', '.model', '.png', 'acc_', 'f1_', '.origin', '.adv', '.csv', '.org', '.defense',]
-
+    filter_key_words = ['.py', '.md', 'readme', 'log', 'result', 'zip', '.state_dict', '.model', '.png', 'acc_', 'f1_', '.origin', '.adv', '.csv']
     dataset_file = {'train': [], 'test': [], 'valid': []}
-
     search_path = './'
     task = 'text_classification'
     dataset_file['train'] += find_files(search_path, [dataset, 'train', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'test.', 'synthesized'] + filter_key_words)
@@ -105,16 +111,13 @@ def generate_adversarial_example(dataset, attack_recipe, tad_classifier):
     dataset_file['valid'] += find_files(search_path, [dataset, 'dev', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
 
     for dat_type in [
-        # 'train',
+        'train',
         'valid',
         'test'
     ]:
         data = []
         label_set = set()
         for data_file in dataset_file[dat_type]:
-            for key in filter_key_words:
-                if key in data_file:
-                 continue
             print("Attack: {}".format(data_file))
 
             with open(data_file, mode='r', encoding='utf8') as fin:
@@ -127,8 +130,8 @@ def generate_adversarial_example(dataset, attack_recipe, tad_classifier):
                     label_set.add(label)
 
             print(label_set)
-            # len_per_fold = len(data) // 10
-            len_per_fold = len(data)
+            len_per_fold = len(data) // 10
+            # len_per_fold = len(data)
             folds = [data[i: i + len_per_fold] for i in range(0, len(data), len_per_fold)]
             for i in range(len(folds)):
                 adv_data = []
@@ -136,7 +139,11 @@ def generate_adversarial_example(dataset, attack_recipe, tad_classifier):
                 count = 0.
                 def_success = 0.
                 for text, label in tqdm.tqdm(folds[i], postfix='attacking {}-th fold...'.format(i + 1)):
-                    result = sent_attacker.attacker.simple_attack(text, label)
+                    try:
+                        result = sent_attacker.attacker.simple_attack(text, label)
+                    except Exception as e:
+                        print(e)
+                        continue
                     new_data = {}
 
                     if result is not None:
@@ -146,6 +153,7 @@ def generate_adversarial_example(dataset, attack_recipe, tad_classifier):
                         new_data['adv_text'] = result.perturbed_result.attacked_text.text
                         new_data['perturb_label'] = result.perturbed_result.output
                         new_data['is_adv'] = 1
+
 
                     else:
                         print('No adversarial example for: {}'.format(text))
@@ -170,18 +178,19 @@ def generate_adversarial_example(dataset, attack_recipe, tad_classifier):
                     fout.writelines(org_data)
                     fout.close()
 
-                    fout = open(os.path.dirname(data_file) + '/{}{}/{}.{}.{}.adv'.format(dataset, attack_recipe_name, os.path.basename(data_file), i + 1, attack_recipe_name), mode='w', encoding='utf8')
+                    fout = open(os.path.dirname(data_file) + '/{}{}/{}.{}.{}.adv'.format(dataset, attack_recipe_name, os.path.basename(data_file), i + 1, attack_recipe_name), mode='w',
+                                encoding='utf8')
                     fout.writelines(adv_data)
                     fout.close()
 
                 # print('Defense Success Rate: {}'.format(def_success / count))
 
 
-
 if __name__ == '__main__':
 
+    attack_name = 'clare'
     # attack_name = 'BAE'
-    attack_name = 'PWWS'
+    # attack_name = 'PWWS'
     # attack_name = 'TextFooler'
 
     # attack_name = 'PSO'
@@ -190,9 +199,10 @@ if __name__ == '__main__':
 
     datasets = [
         # 'SST2',
-        # 'AGNews10k',
-        'Amazon',
+        'AGNews10k',
+        # 'Amazon',
     ]
+
     for dataset in datasets:
         # tad_classifier = TADCheckpointManager.get_tad_text_classifier(
         #     'tadbert_{}{}'.format(dataset, attack_name),
@@ -200,13 +210,14 @@ if __name__ == '__main__':
         # )
         tad_classifier = TCCheckpointManager.get_text_classifier(
             '{}'.format(dataset),
-            auto_device=autocuda.auto_cuda()
+            auto_device='cuda:0'
         )
         attack_recipes = {
             'bae': BAEGarg2019,
             'pwws': PWWSRen2019,
             'textfooler': TextFoolerJin2019,
             'pso': PSOZang2020,
+            'clare': CLARE2020,
             'iga': IGAWang2019,
             'GA': GeneticAlgorithmAlzantot2018,
             'wordbugger': DeepWordBugGao2018,

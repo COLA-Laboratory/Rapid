@@ -99,15 +99,15 @@ class HuggingFaceDataset(Dataset):
     """
 
     def __init__(
-        self,
-        name_or_dataset,
-        subset=None,
-        split="train",
-        dataset_columns=None,
-        label_map=None,
-        label_names=None,
-        output_scale_factor=None,
-        shuffle=False,
+            self,
+            name_or_dataset,
+            subset=None,
+            split="train",
+            dataset_columns=None,
+            label_map=None,
+            label_names=None,
+            output_scale_factor=None,
+            shuffle=False,
     ):
         if isinstance(name_or_dataset, datasets.Dataset):
             self._dataset = name_or_dataset

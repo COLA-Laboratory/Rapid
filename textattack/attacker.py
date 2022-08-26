@@ -4,19 +4,19 @@ Attacker Class
 """
 
 import collections
+import functools
 import logging
+import multiprocessing
 import multiprocessing as mp
 import os
 import queue
 import random
-import signal
 import traceback
 
 import torch
 import tqdm
 
 import textattack
-
 from textattack.attack_results import (
     FailedAttackResult,
     MaximizedAttackResult,
@@ -28,29 +28,19 @@ from textattack.shared.utils import logger
 from .attack import Attack
 from .attack_args import AttackArgs
 
-
-def time_out(interval, callback=None):
-    def decorator(func):
-        def handler(signum, frame):
-            raise TimeoutError("Func: {} timeout".format(func.__name__))
-
-        def wrapper(*args, **kwargs):
-            try:
-                signal.signal(signal.SIGALRM, handler)
-                signal.alarm(interval)  # interval秒后向进程发送SIGALRM信号
-                result = func(*args, **kwargs)
-                signal.alarm(0)  # 函数在规定时间执行完后关闭alarm闹钟
-                return result
-            except TimeoutError as e:
-                if callback:
-                    callback(e)
-                else:
-                    raise e
-
-        return wrapper
-    return decorator
-
-
+def timeout(max_timeout):
+    """Timeout decorator, parameter in seconds."""
+    def timeout_decorator(item):
+        """Wrap the original function."""
+        @functools.wraps(item)
+        def func_wrapper(*args, **kwargs):
+            """Closure for function."""
+            pool = multiprocessing.pool.ThreadPool(processes=1)
+            async_result = pool.apply_async(item, args, kwargs)
+            # raises a TimeoutError if execution exceeds max_timeout
+            return async_result.get(max_timeout)
+        return func_wrapper
+    return timeout_decorator
 
 class Attacker:
     """Class for running attacks on a dataset with specified parameters. This
@@ -126,7 +116,8 @@ class Attacker:
         candidates = collections.deque(candidates[num_examples:])
         assert (len(worklist) + len(candidates)) == (end - start)
         return worklist, candidates
-    @time_out(400)
+
+    @timeout(300)
     def simple_attack(self, text, label):
         """Internal method that carries out attack.
 
@@ -146,8 +137,8 @@ class Attacker:
                 raise e
                 # return
             if (isinstance(result, SkippedAttackResult) and self.attack_args.attack_n) or (
-                not isinstance(result, SuccessfulAttackResult)
-                and self.attack_args.num_successful_examples
+                    not isinstance(result, SuccessfulAttackResult)
+                    and self.attack_args.num_successful_examples
             ):
                 return
             else:
@@ -155,7 +146,7 @@ class Attacker:
         except KeyboardInterrupt as e:
             raise e
 
-    def _attack(self):
+    def _attack(self, **kwargs):
         """Internal method that carries out attack.
 
         No parallel processing is involved.
@@ -218,14 +209,14 @@ class Attacker:
             if self.dataset.label_names is not None:
                 example.attack_attrs["label_names"] = self.dataset.label_names
             try:
-                result = self.attack.attack(example, ground_truth_output)
+                result = self.attack.attack(example, ground_truth_output, **kwargs)
             except Exception as e:
                 raise e
             if (
-                isinstance(result, SkippedAttackResult) and self.attack_args.attack_n
+                    isinstance(result, SkippedAttackResult) and self.attack_args.attack_n
             ) or (
-                not isinstance(result, SuccessfulAttackResult)
-                and self.attack_args.num_successful_examples
+                    not isinstance(result, SuccessfulAttackResult)
+                    and self.attack_args.num_successful_examples
             ):
                 if worklist_candidates:
                     next_sample = worklist_candidates.popleft()
@@ -253,10 +244,10 @@ class Attacker:
             )
 
             if (
-                self.attack_args.checkpoint_interval
-                and len(self.attack_log_manager.results)
-                % self.attack_args.checkpoint_interval
-                == 0
+                    self.attack_args.checkpoint_interval
+                    and len(self.attack_log_manager.results)
+                    % self.attack_args.checkpoint_interval
+                    == 0
             ):
                 new_checkpoint = textattack.shared.AttackCheckpoint(
                     self.attack_args,
@@ -388,10 +379,10 @@ class Attacker:
                 worker_pool.join()
                 return
             elif (
-                isinstance(result, SkippedAttackResult) and self.attack_args.attack_n
+                    isinstance(result, SkippedAttackResult) and self.attack_args.attack_n
             ) or (
-                not isinstance(result, SuccessfulAttackResult)
-                and self.attack_args.num_successful_examples
+                    not isinstance(result, SuccessfulAttackResult)
+                    and self.attack_args.num_successful_examples
             ):
                 if worklist_candidates:
                     next_sample = worklist_candidates.popleft()
@@ -422,10 +413,10 @@ class Attacker:
             )
 
             if (
-                self.attack_args.checkpoint_interval
-                and len(self.attack_log_manager.results)
-                % self.attack_args.checkpoint_interval
-                == 0
+                    self.attack_args.checkpoint_interval
+                    and len(self.attack_log_manager.results)
+                    % self.attack_args.checkpoint_interval
+                    == 0
             ):
                 new_checkpoint = textattack.shared.AttackCheckpoint(
                     self.attack_args,
@@ -455,7 +446,7 @@ class Attacker:
         self.attack_log_manager.flush()
         print()
 
-    def attack_dataset(self):
+    def attack_dataset(self, **kwargs):
         """Attack the dataset.
 
         Returns:
@@ -491,7 +482,7 @@ class Attacker:
                 )
             self._attack_parallel()
         else:
-            self._attack()
+            self._attack(**kwargs)
 
         if self.attack_args.silent:
             logger.setLevel(logging.INFO)
@@ -609,7 +600,7 @@ def set_env_variables(gpu_id):
 
 
 def attack_from_queue(
-    attack, attack_args, num_gpus, first_to_start, lock, in_queue, out_queue
+        attack, attack_args, num_gpus, first_to_start, lock, in_queue, out_queue
 ):
     assert isinstance(
         attack, Attack

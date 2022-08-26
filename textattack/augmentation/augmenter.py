@@ -61,17 +61,17 @@ class Augmenter:
     """
 
     def __init__(
-        self,
-        transformation,
-        constraints=[],
-        pct_words_to_swap=0.1,
-        transformations_per_example=1,
-        high_yield=False,
-        fast_augment=False,
-        enable_advanced_metrics=False,
+            self,
+            transformation,
+            constraints=[],
+            pct_words_to_swap=0.1,
+            transformations_per_example=1,
+            high_yield=False,
+            fast_augment=False,
+            enable_advanced_metrics=False,
     ):
         assert (
-            transformations_per_example > 0
+                transformations_per_example > 0
         ), "transformations_per_example must be a positive integer"
         assert 0.0 <= pct_words_to_swap <= 1.0, "pct_words_to_swap must be in [0., 1.]"
         self.transformation = transformation
@@ -146,7 +146,7 @@ class Augmenter:
                         text
                         for text in transformed_texts
                         if len(text.attack_attrs["modified_indices"])
-                        >= num_words_to_swap
+                           >= num_words_to_swap
                     ]
                     for text in ready_texts:
                         all_transformed_texts.add(text)
@@ -172,8 +172,8 @@ class Augmenter:
 
             # when with fast_augment, terminate early if there're enough successful augmentations
             if (
-                self.fast_augment
-                and len(all_transformed_texts) >= self.transformations_per_example
+                    self.fast_augment
+                    and len(all_transformed_texts) >= self.transformations_per_example
             ):
                 if not self.high_yield:
                     all_transformed_texts = random.sample(

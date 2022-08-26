@@ -19,7 +19,7 @@ class CompositeTransformation(Transformation):
 
     def __init__(self, transformations):
         if not (
-            isinstance(transformations, list) or isinstance(transformations, tuple)
+                isinstance(transformations, list) or isinstance(transformations, tuple)
         ):
             raise TypeError("transformations must be list or tuple")
         elif not len(transformations):

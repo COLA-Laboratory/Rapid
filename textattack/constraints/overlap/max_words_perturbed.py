@@ -22,7 +22,7 @@ class MaxWordsPerturbed(Constraint):
     """
 
     def __init__(
-        self, max_num_words=None, max_percent=None, compare_against_original=True
+            self, max_num_words=None, max_percent=None, compare_against_original=True
     ):
         super().__init__(compare_against_original)
         if not compare_against_original:

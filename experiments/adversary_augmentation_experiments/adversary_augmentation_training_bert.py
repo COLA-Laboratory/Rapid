@@ -182,8 +182,8 @@ def adversarial_attack_detection_and_defense(dataset, attack_recipe):
 if __name__ == '__main__':
 
     for attack_name in [
-        'BAE',
-        'PWWS',
+        # 'BAE',
+        # 'PWWS',
         'TextFooler'
     ]:
 
@@ -196,7 +196,8 @@ if __name__ == '__main__':
         for dataset in datasets:
             tad_classifier = TADCheckpointManager.get_tad_text_classifier(
                 # f'TAD-BERT-{dataset}{attack_name}',
-                f'TAD-{dataset}',
+                # f'TAD-{dataset}',
+                f'tadbert_{dataset}',
                 # f'tadbert_{dataset}{attack_name}',
                 # auto_device=autocuda.auto_cuda()
                 auto_device='cuda:1'

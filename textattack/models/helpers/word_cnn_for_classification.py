@@ -25,13 +25,13 @@ class WordCNNForClassification(nn.Module):
     """
 
     def __init__(
-        self,
-        hidden_size=150,
-        dropout=0.3,
-        num_labels=2,
-        max_seq_length=128,
-        model_path=None,
-        emb_layer_trainable=True,
+            self,
+            hidden_size=150,
+            dropout=0.3,
+            num_labels=2,
+            max_seq_length=128,
+            model_path=None,
+            emb_layer_trainable=True,
     ):
         super().__init__()
         self._config = {

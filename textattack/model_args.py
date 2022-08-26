@@ -12,8 +12,6 @@ import transformers
 import textattack
 from textattack.shared.utils import ARGS_SPLIT_TOKEN, load_module_from_file
 
-from pyabsa import TADCheckpointManager
-
 HUGGINGFACE_MODELS = {
     #
     # bert-base-uncased
@@ -98,10 +96,10 @@ PYABSA_MODELS = {
     #
     # PyABSA TAD-BERT
     #
-    # "tadbert-sst2": "tad-sst2",
+    "tadbert-sst2": "tad-bert-sst2",
     "taddeberta-sst2": "tad-sst2",
-    # "tadbert-ag-news": "tad-agnews10k",
-    "taddeberta-ag-news": "tad-agnews10k",
+    "tadbert-ag-news": "tad-agnews10k",
+    "taddeberta-ag-news": "tad-bert-agnews10k",
 }
 
 #
@@ -237,6 +235,7 @@ class ModelArgs:
             )
             model = textattack.models.wrappers.HuggingFaceModelWrapper(model, tokenizer)
         elif args.model in PYABSA_MODELS:
+            from pyabsa import TADCheckpointManager
             colored_model_name = textattack.shared.utils.color_text(
                 args.model, color="blue", method="ansi"
             )
@@ -244,7 +243,7 @@ class ModelArgs:
                 f"Loading pre-trained TAD model from https://github.com/yangheng95/PyABSA: {colored_model_name}"
             )
             model = TADCheckpointManager.get_tad_text_classifier(checkpoint=PYABSA_MODELS[args.model], auto_device=True)
-            model = textattack.models.wrappers.PyABSAModelWrapper(
+            model = textattack.models.wrappers.TADModelWrapper(
                 model
             )
         elif args.model in TEXTATTACK_MODELS:
@@ -301,8 +300,8 @@ class ModelArgs:
                     config = json.load(f)
                 model_class = config["architectures"]
                 if (
-                    model_class == "LSTMForClassification"
-                    or model_class == "WordCNNForClassification"
+                        model_class == "LSTMForClassification"
+                        or model_class == "WordCNNForClassification"
                 ):
                     model = eval(
                         f"textattack.models.helpers.{model_class}.from_pretrained({args.model})"

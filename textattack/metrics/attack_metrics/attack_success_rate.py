@@ -52,7 +52,7 @@ class AttackSuccessRate(Metric):
 
     def original_accuracy_perc(self):
         original_accuracy = (
-            (self.total_attacks - self.skipped_attacks) * 100.0 / (self.total_attacks)
+                (self.total_attacks - self.skipped_attacks) * 100.0 / (self.total_attacks)
         )
         original_accuracy = round(original_accuracy, 2)
         return original_accuracy
@@ -67,9 +67,9 @@ class AttackSuccessRate(Metric):
             attack_success_rate = 0
         else:
             attack_success_rate = (
-                self.successful_attacks
-                * 100.0
-                / (self.successful_attacks + self.failed_attacks)
+                    self.successful_attacks
+                    * 100.0
+                    / (self.successful_attacks + self.failed_attacks)
             )
         attack_success_rate = round(attack_success_rate, 2)
         return attack_success_rate

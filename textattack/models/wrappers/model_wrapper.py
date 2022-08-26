@@ -41,6 +41,7 @@ class ModelWrapper(ABC):
         if strip_prefix:
             # `aux_chars` are known auxiliary characters that are added to tokens
             strip_chars = ["##", "Ġ", "__"]
+
             # TODO: Find a better way to identify prefixes. These depend on the model, so cannot be resolved in ModelWrapper.
 
             def strip(s, chars):

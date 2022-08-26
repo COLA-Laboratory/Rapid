@@ -4,7 +4,6 @@ RNN Language Model
 
 """
 
-
 from torch import nn as nn
 from torch.autograd import Variable
 
@@ -18,17 +17,17 @@ class RNNModel(nn.Module):
     """
 
     def __init__(
-        self,
-        rnn_type,
-        ntoken,
-        ninp,
-        nhid,
-        nlayers,
-        cutoffs,
-        proj=False,
-        dropout=0.5,
-        tie_weights=False,
-        lm1b=False,
+            self,
+            rnn_type,
+            ntoken,
+            ninp,
+            nhid,
+            nlayers,
+            cutoffs,
+            proj=False,
+            dropout=0.5,
+            tie_weights=False,
+            lm1b=False,
     ):
         super(RNNModel, self).__init__()
         self.drop = nn.Dropout(dropout)

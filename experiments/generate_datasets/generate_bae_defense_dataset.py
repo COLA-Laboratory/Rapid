@@ -155,8 +155,7 @@ def generate_adversarial_example(dataset, attack_recipe, tad_classifier):
                     if new_data['perturb_label'] != new_data['origin_label']:
                         adv_data.append('{}$LABEL${},{},{}\n'.format(
                             new_data['adv_text'],
-                            # new_data['origin_label'],
-                            -100,
+                            new_data['origin_label'],
                             new_data['is_adv'],
                             new_data['perturb_label'],
                         ))

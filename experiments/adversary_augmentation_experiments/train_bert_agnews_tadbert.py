@@ -18,7 +18,6 @@ from pyabsa.functional.dataset.dataset_manager import AdvTCDatasetList, DatasetI
 warnings.filterwarnings('ignore')
 seeds = [random.randint(1, 10000) for _ in range(1)]
 
-
 def get_config():
     config = TADConfigManager.get_tad_config_english()
     config.model = BERTTADModelList.TADBERT

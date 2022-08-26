@@ -38,11 +38,11 @@ class WordSwapRandomCharacterSubstitution(WordSwap):
 
         if self.random_one:
             i = np.random.randint(0, len(word))
-            candidate_word = word[:i] + self._get_random_letter() + word[i + 1 :]
+            candidate_word = word[:i] + self._get_random_letter() + word[i + 1:]
             candidate_words.append(candidate_word)
         else:
             for i in range(len(word)):
-                candidate_word = word[:i] + self._get_random_letter() + word[i + 1 :]
+                candidate_word = word[:i] + self._get_random_letter() + word[i + 1:]
                 candidate_words.append(candidate_word)
 
         return candidate_words
