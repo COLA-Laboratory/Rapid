@@ -20,10 +20,13 @@ from termcolor import colored
 from pyabsa import TCCheckpointManager, TCDatasetList, TADCheckpointManager
 from pyabsa.functional.dataset.dataset_manager import AdvTCDatasetList, DatasetItem, detect_dataset
 from textattack import Attacker
-from textattack.attack_recipes import BAEGarg2019, PWWSRen2019, TextFoolerJin2019, PSOZang2020, IGAWang2019, GeneticAlgorithmAlzantot2018, DeepWordBugGao2018, CLARE2020
+from textattack.attack_recipes import BAEGarg2019, PWWSRen2019, TextFoolerJin2019, PSOZang2020, IGAWang2019, \
+    GeneticAlgorithmAlzantot2018, DeepWordBugGao2018, CLARE2020
 from textattack.attack_results import SuccessfulAttackResult
 from textattack.datasets import Dataset
 from textattack.models.wrappers import HuggingFaceModelWrapper
+from textattack.attack_args import AttackArgs
+
 
 @contextmanager
 def timeout(duration: float):
@@ -56,6 +59,7 @@ def timeout(duration: float):
     signal.alarm(duration)
     yield
     signal.alarm(0)
+
 
 class PyABSAModelWrapper(HuggingFaceModelWrapper):
     """ Transformers sentiment analysis pipeline returns a list of responses
@@ -99,7 +103,6 @@ os.environ['PYTHONIOENCODING'] = 'UTF8'
 
 
 def transfer_adversarial_attack_detection_and_defense(infer_files, tad_classifier, attacker):
-
     mv = MetricVisualizer()
     data = []
     for data_file in infer_files:
@@ -124,14 +127,15 @@ def transfer_adversarial_attack_detection_and_defense(infer_files, tad_classifie
             try:
                 result = attacker.attacker.simple_attack(text, label)
             except Exception as e:
-                del attacker
+                # del attacker
                 torch.cuda.empty_cache()
-                attacker = SentAttacker(source_classifier, attack_recipes[target_attacker.lower()])
+                # attacker = SentAttacker(source_classifier, attack_recipes[target_attacker.lower()])
                 print(e)
                 continue
             if isinstance(result, SuccessfulAttackResult):
                 infer_res = tad_classifier.infer(
-                    result.perturbed_result.attacked_text.text + '!ref!{},{},{}'.format(result.original_result.ground_truth_output, 1, result.perturbed_result.output),
+                    result.perturbed_result.attacked_text.text + '!ref!{},{},{}'.format(
+                        result.original_result.ground_truth_output, 1, result.perturbed_result.output),
                     print_result=False,
                     defense='pwws'
                 )
@@ -142,7 +146,8 @@ def transfer_adversarial_attack_detection_and_defense(infer_files, tad_classifie
                     det_acc_count += 1
             else:
                 infer_res = tad_classifier.infer(
-                    result.original_result.attacked_text.text + '!ref!{},{},{}'.format(result.original_result.ground_truth_output, 1, result.perturbed_result.output),
+                    result.original_result.attacked_text.text + '!ref!{},{},{}'.format(
+                        result.original_result.ground_truth_output, 1, result.perturbed_result.output),
                     print_result=False,
                 )
             all_num += 1
@@ -174,8 +179,8 @@ if __name__ == '__main__':
     }
     for dataset in [
         'SST2',
-        # 'Amazon',
-        # 'AGNews10K',
+        'Amazon',
+        'AGNews10K',
     ]:
         for source_attacker in [
             # 'BAE',
@@ -185,13 +190,16 @@ if __name__ == '__main__':
         ]:
             for target_attacker in [
                 # 'clare',
-                'PSO',
+                # 'PSO',
                 'GA',
-                'wordbugger',
+                # 'wordbugger',
             ]:
-                print(colored(f'\n------------------- {dataset}{source_attacker} -> {dataset}{target_attacker} (DeBERTa) -------------------\n', 'green'))
+                print(colored(
+                    f'\n------------------- {dataset}{source_attacker} -> {dataset}{target_attacker} (DeBERTa) -------------------\n',
+                    'green'))
                 source_classifier = TADCheckpointManager.get_tad_text_classifier(checkpoint=f'TAD-{dataset}',
-                                                                                 auto_device=True,  # Use CUDA if available
+                                                                                 auto_device=True,
+                                                                                 # Use CUDA if available
                                                                                  )
 
                 # print(colored(f'\n------------------- {dataset}{source_attacker} -> {dataset}{target_attacker} (DeBERTa) -------------------\n', 'green'))
@@ -207,6 +215,10 @@ if __name__ == '__main__':
 
                 print(colored(f'\n******************** Restored Accuracy ********************\n', 'green'))
                 testing_set = detect_dataset(DatasetItem(dataset), task='classification')['test']
-                transfer_adversarial_attack_detection_and_defense(testing_set, source_classifier, SentAttacker(source_classifier, attack_recipes[target_attacker.lower()]))
+                transfer_adversarial_attack_detection_and_defense(testing_set, source_classifier,
+                                                                  SentAttacker(source_classifier,
+                                                                               attack_recipes[target_attacker.lower()]))
                 print(colored(f'\n******************** Restored Accuracy ********************\n', 'green'))
-                print(colored(f'\n------------------- {dataset}{source_attacker} -> {dataset}{target_attacker} (DeBERTa) -------------------\n', 'green'))
+                print(colored(
+                    f'\n------------------- {dataset}{source_attacker} -> {dataset}{target_attacker} (DeBERTa) -------------------\n',
+                    'green'))

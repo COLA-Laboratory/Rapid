@@ -32,7 +32,6 @@ classification_config_english.seed = random.randint(1, 10000)
 classification_config_english.l2reg = 1e-8
 classification_config_english.cross_validate_fold = -1
 
-
 dataset = ClassificationDatasetList.SST2
 text_classifier = TextClassificationTrainer(config=classification_config_english,
                                             dataset=dataset,

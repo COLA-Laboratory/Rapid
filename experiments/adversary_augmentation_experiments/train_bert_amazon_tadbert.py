@@ -36,6 +36,7 @@ def get_config():
     config.cross_validate_fold = -1
     return config
 
+
 dataset = DatasetItem('Amazon')
 text_classifier = TADTrainer(config=get_config(),
                              dataset=dataset,

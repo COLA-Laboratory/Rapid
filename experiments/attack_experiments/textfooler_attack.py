@@ -16,10 +16,12 @@ import os
 import numpy as np
 import pandas
 from termcolor import colored
-from transformers import AutoTokenizer, TFAutoModelForSequenceClassification, pipeline, AutoModelForSequenceClassification
+from transformers import AutoTokenizer, TFAutoModelForSequenceClassification, pipeline, \
+    AutoModelForSequenceClassification
 
 from textattack import Attacker
-from textattack.attack_recipes import BERTAttackLi2020, BAEGarg2019, PWWSRen2019, TextFoolerJin2019, PSOZang2020, IGAWang2019, GeneticAlgorithmAlzantot2018, DeepWordBugGao2018
+from textattack.attack_recipes import BERTAttackLi2020, BAEGarg2019, PWWSRen2019, TextFoolerJin2019, PSOZang2020, \
+    IGAWang2019, GeneticAlgorithmAlzantot2018, DeepWordBugGao2018
 from textattack.attack_recipes import TextFoolerJin2019
 from textattack.attack_results import SuccessfulAttackResult
 from textattack.datasets import HuggingFaceDataset, Dataset
@@ -29,7 +31,6 @@ import os
 
 import autocuda
 from pyabsa import TCConfigManager, GloVeTCModelList, TCDatasetList, BERTTCModelList, TCCheckpointManager
-
 
 if "TF_CPP_MIN_LOG_LEVEL" not in os.environ:
     os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
@@ -94,14 +95,17 @@ def generate_adversarial_example(dataset, attack_recipe, text_classifier):
     attack_recipe_name = attack_recipe.__name__
     sent_attacker = SentAttacker(text_classifier, attack_recipe)
 
-    filter_key_words = ['.py', '.md', 'readme', 'log', 'result', 'zip', '.state_dict', '.model', '.png', 'acc_', 'f1_', '.origin', '.adv', '.csv']
+    filter_key_words = ['.py', '.md', 'readme', 'log', 'result', 'zip', '.state_dict', '.model', '.png', 'acc_', 'f1_',
+                        '.origin', '.adv', '.csv']
 
     dataset_file = {'train': [], 'test': [], 'valid': []}
 
     search_path = './'
     task = 'text_classification'
     # dataset_file['train'] += find_files(search_path, [dataset, 'train', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'test.', 'synthesized'] + filter_key_words)
-    dataset_file['test'] += find_files(search_path, [dataset, 'test', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
+    dataset_file['test'] += find_files(search_path, [dataset, 'test', task],
+                                       exclude_key=['.adv', '.org', '.defense', '.inference', 'train.',
+                                                    'synthesized'] + filter_key_words)
     # dataset_file['valid'] += find_files(search_path, [dataset, 'valid', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
     # dataset_file['valid'] += find_files(search_path, [dataset, 'dev', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
 
@@ -132,7 +136,7 @@ def generate_adversarial_example(dataset, attack_recipe, text_classifier):
                 result = sent_attacker.attacker.simple_attack(text, label)
                 count += 1
                 if result.original_result.ground_truth_output == result.original_result.output and \
-                    result.original_result.ground_truth_output == result.perturbed_result.output:
+                        result.original_result.ground_truth_output == result.perturbed_result.output:
                     acc_count += 1
 
                 print(colored('Accuracy: {}%'.format(acc_count / count * 100), 'cyan'))
@@ -169,4 +173,5 @@ if __name__ == '__main__':
             'GA': GeneticAlgorithmAlzantot2018,
             'wordbugger': DeepWordBugGao2018,
         }
-        generate_adversarial_example(dataset, attack_recipe=attack_recipes[attack_name.lower()], text_classifier=text_classifier)
+        generate_adversarial_example(dataset, attack_recipe=attack_recipes[attack_name.lower()],
+                                     text_classifier=text_classifier)

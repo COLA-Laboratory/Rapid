@@ -52,4 +52,3 @@ def get_ensembled_tc_results(results):
 
     return dict(zip(target_dict.values(), target_dict.keys()))[max(target_dict.values())]
     # return dict(zip(target_dict.values(), target_dict.keys()))[max(target_dict.values())]
-

@@ -12,7 +12,8 @@ from findfile import find_files
 from termcolor import colored
 
 from textattack import Attacker
-from textattack.attack_recipes import BAEGarg2019, PWWSRen2019, TextFoolerJin2019, PSOZang2020, IGAWang2019, GeneticAlgorithmAlzantot2018, DeepWordBugGao2018, BERTAttackLi2020
+from textattack.attack_recipes import BAEGarg2019, PWWSRen2019, TextFoolerJin2019, PSOZang2020, IGAWang2019, \
+    GeneticAlgorithmAlzantot2018, DeepWordBugGao2018, BERTAttackLi2020
 from textattack.datasets import Dataset
 from textattack.models.wrappers import HuggingFaceModelWrapper
 
@@ -66,16 +67,25 @@ class SentAttacker:
 def run_TAD_benchmark(_dataset: str, _attack_recipe, _defense_attacker: str):
     sent_attacker = SentAttacker(tad_classifier, _attack_recipe)
     tad_classifier.attacker = sent_attacker
-    filter_key_words = ['.py', '.md', 'readme', 'log', 'result', 'zip', '.state_dict', '.model', '.png', 'acc_', 'f1_', '.origin', '.adv', '.csv']
+    filter_key_words = ['.py', '.md', 'readme', 'log', 'result', 'zip', '.state_dict', '.model', '.png', 'acc_', 'f1_',
+                        '.origin', '.adv', '.csv']
 
     dataset_file = {'train': [], 'test': [], 'valid': []}
 
     search_path = './'
     task = 'text_defense'
-    dataset_file['train'] += find_files(search_path, [_dataset, 'train', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'test.', 'synthesized'] + filter_key_words)
-    dataset_file['test'] += find_files(search_path, [_dataset, 'test', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
-    dataset_file['valid'] += find_files(search_path, [_dataset, 'valid', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
-    dataset_file['valid'] += find_files(search_path, [_dataset, 'dev', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
+    dataset_file['train'] += find_files(search_path, [_dataset, 'train', task],
+                                        exclude_key=['.adv', '.org', '.defense', '.inference', 'test.',
+                                                     'synthesized'] + filter_key_words)
+    dataset_file['test'] += find_files(search_path, [_dataset, 'test', task],
+                                       exclude_key=['.adv', '.org', '.defense', '.inference', 'train.',
+                                                    'synthesized'] + filter_key_words)
+    dataset_file['valid'] += find_files(search_path, [_dataset, 'valid', task],
+                                        exclude_key=['.adv', '.org', '.defense', '.inference', 'train.',
+                                                     'synthesized'] + filter_key_words)
+    dataset_file['valid'] += find_files(search_path, [_dataset, 'dev', task],
+                                        exclude_key=['.adv', '.org', '.defense', '.inference', 'train.',
+                                                     'synthesized'] + filter_key_words)
 
     for dat_type in [
         # 'train',
@@ -109,15 +119,16 @@ def run_TAD_benchmark(_dataset: str, _attack_recipe, _defense_attacker: str):
                 result = sent_attacker.attacker.simple_attack(text, label)
                 all_count += 1
                 if result.original_result.ground_truth_output == result.original_result.output and \
-                    result.original_result.ground_truth_output == result.perturbed_result.output:
+                        result.original_result.ground_truth_output == result.perturbed_result.output:
                     acc_count += 1
 
                 elif result.perturbed_result.output != result.original_result.ground_truth_output and \
-                    result.original_result.output == result.original_result.ground_truth_output:
+                        result.original_result.output == result.original_result.ground_truth_output:
                     defense_count += 1
                     detection_count += 1
                     res = tad_classifier.infer(
-                        result.perturbed_result.attacked_text.text + '!ref!{}'.format(result.original_result.ground_truth_output),
+                        result.perturbed_result.attacked_text.text + '!ref!{}'.format(
+                            result.original_result.ground_truth_output),
                         print_result=False,
                         defense=args.defense_attacker
                     )
@@ -148,8 +159,10 @@ def run_TAD_benchmark(_dataset: str, _attack_recipe, _defense_attacker: str):
                 round(defense_acc_count / defense_count, 2) * 100
             )
             print(colored(summary, 'green'))
-            with open('./result/{}_{}_TAD_result.txt'.format(args.dataset, args.tad_model), mode='w', encoding='utf8') as fout:
+            with open('./result/{}_{}_TAD_result.txt'.format(args.dataset, args.tad_model), mode='w',
+                      encoding='utf8') as fout:
                 fout.write(summary)
+
 
 if __name__ == '__main__':
 
@@ -192,4 +205,5 @@ if __name__ == '__main__':
             auto_device=autocuda.auto_cuda()
         )
 
-        run_TAD_benchmark(args.dataset, _attack_recipe=attack_recipes[attack_recipe.lower()], _defense_attacker=args.defense_attacker)
+        run_TAD_benchmark(args.dataset, _attack_recipe=attack_recipes[attack_recipe.lower()],
+                          _defense_attacker=args.defense_attacker)

@@ -51,7 +51,6 @@ for dataset in [
                                           ignore_error=False,
                                           )
 
-
     # input('Press Enter to continue...')
     #
     # text_classifier = TADCheckpointManager.get_tad_text_classifier(checkpoint=f'TAD-BERT-{dataset}',

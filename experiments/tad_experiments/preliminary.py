@@ -16,10 +16,12 @@ import tqdm
 from findfile import find_files
 
 from termcolor import colored
-from transformers import AutoTokenizer, TFAutoModelForSequenceClassification, pipeline, AutoModelForSequenceClassification
+from transformers import AutoTokenizer, TFAutoModelForSequenceClassification, pipeline, \
+    AutoModelForSequenceClassification
 
 from textattack import Attacker
-from textattack.attack_recipes import BERTAttackLi2020, BAEGarg2019, PWWSRen2019, TextFoolerJin2019, PSOZang2020, IGAWang2019, GeneticAlgorithmAlzantot2018, DeepWordBugGao2018
+from textattack.attack_recipes import BERTAttackLi2020, BAEGarg2019, PWWSRen2019, TextFoolerJin2019, PSOZang2020, \
+    IGAWang2019, GeneticAlgorithmAlzantot2018, DeepWordBugGao2018
 from textattack.attack_results import SuccessfulAttackResult
 from textattack.datasets import Dataset
 from textattack.models.wrappers import HuggingFaceModelWrapper, PyABSAModelWrapper
@@ -28,7 +30,6 @@ import os
 
 import autocuda
 from pyabsa import TADCheckpointManager
-
 
 
 # device = autocuda.auto_cuda()
@@ -102,16 +103,25 @@ def generate_adversarial_example(dataset, attack_recipe):
     attack_recipe_name = attack_recipe.__name__
     sent_attacker = SentAttacker(tad_classifier, attack_recipe)
 
-    filter_key_words = ['.py', '.md', 'readme', 'log', 'result', 'zip', '.state_dict', '.model', '.png', 'acc_', 'f1_', '.origin', '.adv', '.csv']
+    filter_key_words = ['.py', '.md', 'readme', 'log', 'result', 'zip', '.state_dict', '.model', '.png', 'acc_', 'f1_',
+                        '.origin', '.adv', '.csv']
 
     dataset_file = {'train': [], 'test': [], 'valid': []}
 
     search_path = './'
     task = 'text_classification'
-    dataset_file['train'] += find_files(search_path, [dataset, 'train', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'test.', 'synthesized'] + filter_key_words)
-    dataset_file['test'] += find_files(search_path, [dataset, 'test', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
-    dataset_file['valid'] += find_files(search_path, [dataset, 'valid', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
-    dataset_file['valid'] += find_files(search_path, [dataset, 'dev', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
+    dataset_file['train'] += find_files(search_path, [dataset, 'train', task],
+                                        exclude_key=['.adv', '.org', '.defense', '.inference', 'test.',
+                                                     'synthesized'] + filter_key_words)
+    dataset_file['test'] += find_files(search_path, [dataset, 'test', task],
+                                       exclude_key=['.adv', '.org', '.defense', '.inference', 'train.',
+                                                    'synthesized'] + filter_key_words)
+    dataset_file['valid'] += find_files(search_path, [dataset, 'valid', task],
+                                        exclude_key=['.adv', '.org', '.defense', '.inference', 'train.',
+                                                     'synthesized'] + filter_key_words)
+    dataset_file['valid'] += find_files(search_path, [dataset, 'dev', task],
+                                        exclude_key=['.adv', '.org', '.defense', '.inference', 'train.',
+                                                     'synthesized'] + filter_key_words)
 
     for dat_type in [
         # 'train',
@@ -143,7 +153,7 @@ def generate_adversarial_example(dataset, attack_recipe):
                 count += 1
 
                 if result.perturbed_result.output != result.original_result.ground_truth_output and \
-                    result.original_result.output == result.original_result.ground_truth_output:
+                        result.original_result.output == result.original_result.ground_truth_output:
                     defense_count += 1
                     print(text)
                     print(result.perturbed_result.attacked_text.text)
@@ -161,12 +171,12 @@ def generate_adversarial_example(dataset, attack_recipe):
                     )
                     print()
                     res = tad_classifier.infer(
-                        masked_perturbed_text+'!ref!{}'.format(label),
+                        masked_perturbed_text + '!ref!{}'.format(label),
                         print_result=True
                     )
                     if res['label'] == str(label):
                         defense_acc_count += 1
-                    it.postfix = colored(str(defense_acc_count/defense_count), 'cyan')
+                    it.postfix = colored(str(defense_acc_count / defense_count), 'cyan')
                     it.update()
 
 
@@ -174,11 +184,15 @@ def mask_perturb_text(origin_text, perturb_text):
     origin_tokens = origin_text.split()
     _perturb_text = perturb_text
     for i, token in enumerate(origin_tokens):
-        _perturb_text = _perturb_text.replace(' {} '.format(token), ' ').replace('{} '.format(token), ' ').replace(' {}'.format(token), ' ')
+        _perturb_text = _perturb_text.replace(' {} '.format(token), ' ').replace('{} '.format(token), ' ').replace(
+            ' {}'.format(token), ' ')
     perturb_tokens = _perturb_text.split()
     for i, token in enumerate(perturb_tokens):
-        perturb_text = perturb_text.replace(' {} '.format(token), ' [MASK] ').replace('{} '.format(token), '[MASK] ').replace(' {}'.format(token), ' [MASK]')
+        perturb_text = perturb_text.replace(' {} '.format(token), ' [MASK] ').replace('{} '.format(token),
+                                                                                      '[MASK] ').replace(
+            ' {}'.format(token), ' [MASK]')
     return perturb_text
+
 
 if __name__ == '__main__':
 

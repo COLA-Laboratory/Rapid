@@ -36,6 +36,7 @@ def get_config():
     config.cross_validate_fold = -1
     return config
 
+
 dataset = DatasetItem('AGNews10K')
 text_classifier = TADTrainer(config=get_config(),
                              dataset=dataset,
@@ -60,5 +61,3 @@ text_classifier = TADTrainer(config=get_config(),
                              checkpoint_save_mode=1,
                              auto_device=True
                              ).load_trained_model()
-
-

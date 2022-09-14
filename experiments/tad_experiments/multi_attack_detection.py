@@ -9,10 +9,12 @@ import tqdm
 from findfile import find_files
 
 from termcolor import colored
-from transformers import AutoTokenizer, TFAutoModelForSequenceClassification, pipeline, AutoModelForSequenceClassification
+from transformers import AutoTokenizer, TFAutoModelForSequenceClassification, pipeline, \
+    AutoModelForSequenceClassification
 
 from textattack import Attacker
-from textattack.attack_recipes import BERTAttackLi2020, BAEGarg2019, PWWSRen2019, TextFoolerJin2019, PSOZang2020, IGAWang2019, GeneticAlgorithmAlzantot2018, DeepWordBugGao2018
+from textattack.attack_recipes import BERTAttackLi2020, BAEGarg2019, PWWSRen2019, TextFoolerJin2019, PSOZang2020, \
+    IGAWang2019, GeneticAlgorithmAlzantot2018, DeepWordBugGao2018
 from textattack.attack_results import SuccessfulAttackResult
 from textattack.datasets import Dataset
 from textattack.models.wrappers import HuggingFaceModelWrapper
@@ -21,6 +23,7 @@ import os
 
 import autocuda
 from pyabsa import TADCheckpointManager
+
 
 # Quiet TensorFlow.
 def get_ensembled_tad_results(results):
@@ -41,9 +44,9 @@ def get_ensembled_tc_results(results):
     # return dict(zip(target_dict.values(), target_dict.keys()))[max(target_dict.values())]
 
 
-
 if "TF_CPP_MIN_LOG_LEVEL" not in os.environ:
     os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+
 
 # device = autocuda.auto_cuda()
 # from textattack.augmentation import EasyDataAugmenter as Aug
@@ -99,19 +102,29 @@ class SentAttacker:
 
 
 def generate_adversarial_example(dataset, attack_recipes):
+    sent_attackers = [
+        SentAttacker(TADCheckpointManager.get_tad_text_classifier(f'tadbert_{dataset}{k}'), attack_recipes[k]) for k in
+        attack_recipes]
 
-    sent_attackers = [SentAttacker(TADCheckpointManager.get_tad_text_classifier(f'tadbert_{dataset}{k}'), attack_recipes[k]) for k in attack_recipes]
-
-    filter_key_words = ['.py', '.md', 'readme', 'log', 'result', 'zip', '.state_dict', '.model', '.png', 'acc_', 'f1_', '.origin', '.adv', '.csv']
+    filter_key_words = ['.py', '.md', 'readme', 'log', 'result', 'zip', '.state_dict', '.model', '.png', 'acc_', 'f1_',
+                        '.origin', '.adv', '.csv']
 
     dataset_file = {'train': [], 'test': [], 'valid': []}
 
     search_path = './'
     task = 'text_defense'
-    dataset_file['train'] += find_files(search_path, [dataset, 'train', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'test.', 'synthesized'] + filter_key_words)
-    dataset_file['test'] += find_files(search_path, [dataset, 'test', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
-    dataset_file['valid'] += find_files(search_path, [dataset, 'valid', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
-    dataset_file['valid'] += find_files(search_path, [dataset, 'dev', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
+    dataset_file['train'] += find_files(search_path, [dataset, 'train', task],
+                                        exclude_key=['.adv', '.org', '.defense', '.inference', 'test.',
+                                                     'synthesized'] + filter_key_words)
+    dataset_file['test'] += find_files(search_path, [dataset, 'test', task],
+                                       exclude_key=['.adv', '.org', '.defense', '.inference', 'train.',
+                                                    'synthesized'] + filter_key_words)
+    dataset_file['valid'] += find_files(search_path, [dataset, 'valid', task],
+                                        exclude_key=['.adv', '.org', '.defense', '.inference', 'train.',
+                                                     'synthesized'] + filter_key_words)
+    dataset_file['valid'] += find_files(search_path, [dataset, 'dev', task],
+                                        exclude_key=['.adv', '.org', '.defense', '.inference', 'train.',
+                                                     'synthesized'] + filter_key_words)
 
     for dat_type in [
         # 'train',
@@ -141,20 +154,22 @@ def generate_adversarial_example(dataset, attack_recipes):
                     result = sent_attacker.attacker.simple_attack(text, label)
                     count += 1
                     if result.original_result.ground_truth_output == result.original_result.output and \
-                        result.original_result.ground_truth_output == result.perturbed_result.output:
+                            result.original_result.ground_truth_output == result.perturbed_result.output:
                         num_fixed_label += 1
 
                     elif result.perturbed_result.output != result.original_result.ground_truth_output and \
-                        result.original_result.output == result.original_result.ground_truth_output:
+                            result.original_result.output == result.original_result.ground_truth_output:
 
                         infer_res = tad_classifier.infer(
-                            result.perturbed_result.attacked_text.text + '!ref!{},{},{}'.format(result.original_result.ground_truth_output, 1, result.perturbed_result.output),
+                            result.perturbed_result.attacked_text.text + '!ref!{},{},{}'.format(
+                                result.original_result.ground_truth_output, 1, result.perturbed_result.output),
                             print_result=False,
                             # defense='bae'
                         )
                         if infer_res['is_adv_label'] == '1':
                             examples = []
-                            res = sent_attacker.attacker.simple_attack(result.perturbed_result.attacked_text.text, int(infer_res['label']))
+                            res = sent_attacker.attacker.simple_attack(result.perturbed_result.attacked_text.text,
+                                                                       int(infer_res['label']))
                             examples.append(res.perturbed_result.attacked_text.text)
                             # for enum_label in tad_classifier.opt.label_to_index.values():
                             #     if enum_label != -100 and enum_label != int(infer_res['label']):
@@ -166,7 +181,8 @@ def generate_adversarial_example(dataset, attack_recipes):
                             for ex in examples:
                                 infer_results.append(
                                     tad_classifier.infer(
-                                        ex + '!ref!{},{},{}'.format(result.original_result.ground_truth_output, 1, result.perturbed_result.output),
+                                        ex + '!ref!{},{},{}'.format(result.original_result.ground_truth_output, 1,
+                                                                    result.perturbed_result.output),
                                         print_result=False
                                     )
                                 )
@@ -204,7 +220,6 @@ if __name__ == '__main__':
     tad_classifier = TADCheckpointManager.get_tad_text_classifier('tadbert_amazon')
 
     for dataset in datasets:
-
         attack_recipes = {
             'bae': BAEGarg2019,
             'pwws': PWWSRen2019,

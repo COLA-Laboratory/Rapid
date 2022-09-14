@@ -26,7 +26,7 @@ def get_config():
     # config.pretrained_bert = 'bert-base-uncased'
     # config.patience = 5
     config.evaluate_begin = 0
-    config.max_seq_len = 80
+    config.max_seq_len = 100
     config.log_step = -1
     config.dropout = 0.5
     config.learning_rate = 1e-5
@@ -36,12 +36,13 @@ def get_config():
     config.cross_validate_fold = -1
     return config
 
-dataset = DatasetItem('Amazon')
-text_classifier = TADTrainer(config=get_config(),
-                             dataset=dataset,
-                             checkpoint_save_mode=1,
-                             auto_device=True
-                             ).load_trained_model()
+
+# dataset = DatasetItem('Amazon')
+# text_classifier = TADTrainer(config=get_config(),
+#                              dataset=dataset,
+#                              checkpoint_save_mode=1,
+#                              auto_device=True
+#                              ).load_trained_model()
 dataset = DatasetItem('AmazonBAE')
 text_classifier = TADTrainer(config=get_config(),
                              dataset=dataset,

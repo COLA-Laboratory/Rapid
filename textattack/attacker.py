@@ -28,10 +28,13 @@ from textattack.shared.utils import logger
 from .attack import Attack
 from .attack_args import AttackArgs
 
+
 def timeout(max_timeout):
     """Timeout decorator, parameter in seconds."""
+
     def timeout_decorator(item):
         """Wrap the original function."""
+
         @functools.wraps(item)
         def func_wrapper(*args, **kwargs):
             """Closure for function."""
@@ -39,8 +42,11 @@ def timeout(max_timeout):
             async_result = pool.apply_async(item, args, kwargs)
             # raises a TimeoutError if execution exceeds max_timeout
             return async_result.get(max_timeout)
+
         return func_wrapper
+
     return timeout_decorator
+
 
 class Attacker:
     """Class for running attacks on a dataset with specified parameters. This

@@ -12,7 +12,8 @@ import findfile
 
 # Transfer Experiments and Multitask Experiments
 
-from pyabsa import TCTrainer, TADConfigManager, TCDatasetList, BERTTADModelList, TADTrainer, TCConfigManager, BERTTCModelList, GloVeTCModelList
+from pyabsa import TCTrainer, TADConfigManager, TCDatasetList, BERTTADModelList, TADTrainer, TCConfigManager, \
+    BERTTCModelList, GloVeTCModelList
 from pyabsa.functional.dataset.dataset_manager import AdvTCDatasetList, DatasetItem
 
 warnings.filterwarnings('ignore')
@@ -26,21 +27,22 @@ def get_config():
     config.seed = seeds
     return config
 
-# dataset = DatasetItem('SST2')
-# text_classifier = TADTrainer(config=get_config(),
-#                              dataset=dataset,
-#                              checkpoint_save_mode=1,
-#                              auto_device=True
-#                              ).load_trained_model()
+
+dataset = DatasetItem('SST2')
+text_classifier = TADTrainer(config=get_config(),
+                             dataset=dataset,
+                             checkpoint_save_mode=1,
+                             auto_device=True
+                             ).load_trained_model()
 # dataset = DatasetItem('AGNews10K')
 # text_classifier = TADTrainer(config=get_config(),
 #                              dataset=dataset,
 #                              checkpoint_save_mode=1,
 #                              auto_device=True
 #                              ).load_trained_model()
-dataset = DatasetItem('Amazon')
-text_classifier = TADTrainer(config=get_config(),
-                             dataset=dataset,
-                             checkpoint_save_mode=1,
-                             auto_device=True
-                             ).load_trained_model()
+# dataset = DatasetItem('Amazon')
+# text_classifier = TADTrainer(config=get_config(),
+#                              dataset=dataset,
+#                              checkpoint_save_mode=1,
+#                              auto_device=True
+#                              ).load_trained_model()

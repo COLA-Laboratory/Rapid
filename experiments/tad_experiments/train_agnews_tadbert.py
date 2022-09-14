@@ -24,7 +24,7 @@ def get_config():
     config.model = BERTTADModelList.TADBERT
     config.num_epoch = 30
     # config.pretrained_bert = 'bert-base-uncased'
-    # config.patience = 5
+    config.patience = 5
     config.evaluate_begin = 0
     config.max_seq_len = 80
     config.log_step = -1
@@ -35,6 +35,7 @@ def get_config():
     config.l2reg = 1e-5
     config.cross_validate_fold = -1
     return config
+
 
 dataset = DatasetItem('AGNews10K')
 text_classifier = TADTrainer(config=get_config(),
@@ -60,5 +61,3 @@ text_classifier = TADTrainer(config=get_config(),
                              checkpoint_save_mode=1,
                              auto_device=True
                              ).load_trained_model()
-
-

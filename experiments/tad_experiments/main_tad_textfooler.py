@@ -10,10 +10,12 @@ from findfile import find_files
 from metric_visualizer import MetricVisualizer
 
 from termcolor import colored
-from transformers import AutoTokenizer, TFAutoModelForSequenceClassification, pipeline, AutoModelForSequenceClassification
+from transformers import AutoTokenizer, TFAutoModelForSequenceClassification, pipeline, \
+    AutoModelForSequenceClassification
 
 from textattack import Attacker
-from textattack.attack_recipes import BERTAttackLi2020, BAEGarg2019, PWWSRen2019, TextFoolerJin2019, PSOZang2020, IGAWang2019, GeneticAlgorithmAlzantot2018, DeepWordBugGao2018
+from textattack.attack_recipes import BERTAttackLi2020, BAEGarg2019, PWWSRen2019, TextFoolerJin2019, PSOZang2020, \
+    IGAWang2019, GeneticAlgorithmAlzantot2018, DeepWordBugGao2018
 from textattack.attack_results import SuccessfulAttackResult
 from textattack.datasets import Dataset
 from textattack.models.wrappers import HuggingFaceModelWrapper
@@ -45,9 +47,9 @@ def get_ensembled_tc_results(results):
     # return dict(zip(target_dict.values(), target_dict.keys()))[max(target_dict.values())]
 
 
-
 if "TF_CPP_MIN_LOG_LEVEL" not in os.environ:
     os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+
 
 # device = autocuda.auto_cuda()
 # from textattack.augmentation import EasyDataAugmenter as Aug
@@ -106,16 +108,25 @@ def evaluate_tad(dataset, attack_recipe):
     attack_recipe_name = attack_recipe.__name__
     sent_attacker = SentAttacker(tad_classifier, attack_recipe)
 
-    filter_key_words = ['.py', '.md', 'readme', 'log', 'result', 'zip', '.state_dict', '.model', '.png', 'acc_', 'f1_', '.origin', '.adv', '.csv']
+    filter_key_words = ['.py', '.md', 'readme', 'log', 'result', 'zip', '.state_dict', '.model', '.png', 'acc_', 'f1_',
+                        '.origin', '.adv', '.csv', '.bak']
 
     dataset_file = {'train': [], 'test': [], 'valid': []}
 
     search_path = './'
     task = 'text_classification'
-    dataset_file['train'] += find_files(search_path, [dataset, 'train', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'test.', 'synthesized'] + filter_key_words)
-    dataset_file['test'] += find_files(search_path, [dataset, 'test', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
-    dataset_file['valid'] += find_files(search_path, [dataset, 'valid', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
-    dataset_file['valid'] += find_files(search_path, [dataset, 'dev', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
+    dataset_file['train'] += find_files(search_path, [dataset, 'train', task],
+                                        exclude_key=['.adv', '.org', '.defense', '.inference', 'test.',
+                                                     'synthesized'] + filter_key_words)
+    dataset_file['test'] += find_files(search_path, [dataset, 'test', task],
+                                       exclude_key=['.adv', '.org', '.defense', '.inference', 'train.',
+                                                    'synthesized'] + filter_key_words)
+    dataset_file['valid'] += find_files(search_path, [dataset, 'valid', task],
+                                        exclude_key=['.adv', '.org', '.defense', '.inference', 'train.',
+                                                     'synthesized'] + filter_key_words)
+    dataset_file['valid'] += find_files(search_path, [dataset, 'dev', task],
+                                        exclude_key=['.adv', '.org', '.defense', '.inference', 'train.',
+                                                     'synthesized'] + filter_key_words)
 
     for dat_type in [
         # 'train',
@@ -146,18 +157,25 @@ def evaluate_tad(dataset, attack_recipe):
                 result = sent_attacker.attacker.simple_attack(text, label)
                 if isinstance(result, SuccessfulAttackResult):
                     infer_res = tad_classifier.infer(
-                        result.perturbed_result.attacked_text.text + '!ref!{},{},{}'.format(result.original_result.ground_truth_output, 1, result.perturbed_result.output),
+                        result.perturbed_result.attacked_text.text + '!ref!{},{},{}'.format(
+                            result.original_result.ground_truth_output, 1, result.perturbed_result.output),
                         print_result=False,
-                        defense='pwws'
+                        # defense='pwws'
                     )
                     def_num += 1
-                    if infer_res['label'] == str(result.original_result.ground_truth_output):
+                    if infer_res['pred_adv_tr_label'] == str(result.original_result.ground_truth_output):
                         def_acc_count += 1
+                    infer_res['label'] = infer_res['pred_adv_tr_label']
+
+                    # if infer_res['label'] == str(result.original_result.ground_truth_output):
+                    #     def_acc_count += 1
                     if infer_res['is_adv_label'] == '1':
                         det_acc_count += 1
+                    pass
                 else:
                     infer_res = tad_classifier.infer(
-                        result.original_result.attacked_text.text + '!ref!{},{},{}'.format(result.original_result.ground_truth_output, 1, result.perturbed_result.output),
+                        result.original_result.attacked_text.text + '!ref!{},{},{}'.format(
+                            result.original_result.ground_truth_output, 1, result.perturbed_result.output),
                         print_result=False,
                     )
                 all_num += 1
@@ -182,8 +200,8 @@ if __name__ == '__main__':
     # attack_name = 'IGA'
     # attack_name = 'WordBug'
     datasets = [
-        'sst2',
-        'Amazon',
+        # 'sst2',
+        # 'Amazon',
         'agnews10k',
     ]
 
@@ -192,8 +210,9 @@ if __name__ == '__main__':
             f'TAD-{dataset}{attack_name}',
             # f'TAD-{dataset}',
             # f'tadbert_{dataset}{attack_name}',
+            # f'tadbert_{dataset}',
             # auto_device=autocuda.auto_cuda()
-            auto_device='cuda:1'
+            auto_device='cuda:0'
         )
         attack_recipes = {
             'bae': BAEGarg2019,
@@ -208,3 +227,4 @@ if __name__ == '__main__':
         for _ in range(1):
             evaluate_tad(dataset, attack_recipe=attack_recipes[attack_name.lower()])
         mv.summary('')
+        mv.dump()

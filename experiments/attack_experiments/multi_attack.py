@@ -16,10 +16,12 @@ import os
 import numpy as np
 import pandas
 from termcolor import colored
-from transformers import AutoTokenizer, TFAutoModelForSequenceClassification, pipeline, AutoModelForSequenceClassification
+from transformers import AutoTokenizer, TFAutoModelForSequenceClassification, pipeline, \
+    AutoModelForSequenceClassification
 
 from textattack import Attacker
-from textattack.attack_recipes import BERTAttackLi2020, BAEGarg2019, PWWSRen2019, TextFoolerJin2019, PSOZang2020, IGAWang2019, GeneticAlgorithmAlzantot2018, DeepWordBugGao2018
+from textattack.attack_recipes import BERTAttackLi2020, BAEGarg2019, PWWSRen2019, TextFoolerJin2019, PSOZang2020, \
+    IGAWang2019, GeneticAlgorithmAlzantot2018, DeepWordBugGao2018
 from textattack.attack_recipes import TextFoolerJin2019
 from textattack.attack_results import SuccessfulAttackResult
 from textattack.datasets import HuggingFaceDataset, Dataset
@@ -100,14 +102,17 @@ def generate_adversarial_example(dataset, classifier):
     ]
     attackers = [SentAttacker(classifier, attack_recipe) for attack_recipe in attack_recipes]
 
-    filter_key_words = ['.py', '.md', 'readme', 'log', 'result', 'zip', '.state_dict', '.model', '.png', 'acc_', 'f1_', '.origin', '.adv', '.csv']
+    filter_key_words = ['.py', '.md', 'readme', 'log', 'result', 'zip', '.state_dict', '.model', '.png', 'acc_', 'f1_',
+                        '.origin', '.adv', '.csv']
 
     dataset_file = {'train': [], 'test': [], 'valid': []}
 
     search_path = './'
     task = 'text_classification'
     # dataset_file['train'] += find_files(search_path, [dataset, 'train', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'test.', 'synthesized'] + filter_key_words)
-    dataset_file['test'] += find_files(search_path, [dataset, 'test', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
+    dataset_file['test'] += find_files(search_path, [dataset, 'test', task],
+                                       exclude_key=['.adv', '.org', '.defense', '.inference', 'train.',
+                                                    'synthesized'] + filter_key_words)
     # dataset_file['valid'] += find_files(search_path, [dataset, 'valid', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
     # dataset_file['valid'] += find_files(search_path, [dataset, 'dev', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
 
@@ -136,11 +141,11 @@ def generate_adversarial_example(dataset, classifier):
             for text, label in tqdm.tqdm(data, postfix='attacking...'):
                 fix_successful = 0
                 for attacker in attackers:
-                    
+
                     result = attacker.attacker.simple_attack(text, label)
 
                     if result.original_result.ground_truth_output == result.original_result.output and \
-                        result.original_result.ground_truth_output == result.perturbed_result.output:
+                            result.original_result.ground_truth_output == result.perturbed_result.output:
                         fix_successful += 1
 
                 if fix_successful == len(attackers):

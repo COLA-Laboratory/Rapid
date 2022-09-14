@@ -7,37 +7,41 @@
 import os
 import pickle
 import random
+from time import sleep
 
 import autocuda
+import findfile
 import numpy as np
 import tikzplotlib
 import torch
 import tqdm
-from findfile import find_cwd_files, find_cwd_dirs
 from matplotlib import pyplot as plt
 from metric_visualizer import MetricVisualizer
 from numpy import ndarray
 from pandas import DataFrame
+
 from pyabsa import TADCheckpointManager
 from pyabsa.functional.dataset import DatasetItem
-from scipy import stats
-from sklearn.cluster import KMeans
 from textattack.models.wrappers import HuggingFaceModelWrapper
 
 from textattack import Attacker
 from textattack.datasets import Dataset
 
-from textattack.attack_recipes import BAEGarg2019, PWWSRen2019, TextFoolerJin2019, PSOZang2020, IGAWang2019, GeneticAlgorithmAlzantot2018, DeepWordBugGao2018, CLARE2020
+from textattack.attack_recipes import BAEGarg2019, PWWSRen2019, TextFoolerJin2019, PSOZang2020, IGAWang2019, \
+    GeneticAlgorithmAlzantot2018, DeepWordBugGao2018, CLARE2020
 
 from textattack.attack_results import SuccessfulAttackResult
-from transformers import DebertaV2Model, AutoConfig, AutoTokenizer
+from transformers import AutoTokenizer
 from shapely.geometry import Polygon  # 多边形
 from sklearn.manifold import TSNE
 
-mv = MetricVisualizer()
-from findfile import find_cwd_files, find_cwd_dirs
+from sentence_transformers import util
 
-tex_template = r"""
+from findfile import find_cwd_files
+
+mv = MetricVisualizer()
+
+tex_tsne_template = r"""
     \documentclass{article}
     \usepackage{pgfplots}
     \usepackage{tikz}
@@ -54,9 +58,38 @@ tex_template = r"""
             thick,
             font=\normalsize,
             ticks=none,
-            xscale=0.85,
             line width = 1pt,
             tick style = {line width = 0.8pt}}}
+        \pgfplotsset{every plot/.append style={thin}}
+
+        \begin{figure}
+        \centering
+
+        $tikz_code$
+
+        \end{figure}
+
+    \end{document}
+    """
+
+tex_sim_template = r"""
+    \documentclass{article}
+    \usepackage{pgfplots}
+    \usepackage{tikz}
+    \usepackage{caption}
+    \usetikzlibrary{intersections}
+    \usepackage{helvet}
+    \usepackage[eulergreek]{sansmath}
+    \usepackage{amsfonts,amssymb,amsmath,amsthm,amsopn}	% math related
+
+    \begin{document}
+        \pagestyle{empty}
+        \pgfplotsset{ compat=1.3,every axis/.append style={
+            grid = major,
+            thick,
+            font=\normalsize,
+            line width = 1pt,
+            tick style = {line width = 1pt}}}
         \pgfplotsset{every plot/.append style={thin}}
 
         \begin{figure}
@@ -81,8 +114,8 @@ color_map = {
     # 'mono': random.choice(mv.COLORS),
     # 'train': random.choice(mv.COLORS),
     # 'classic': random.choice(mv.COLORS)
-    'normal': 'orange',
-    'adversary': 'lawngreen',
+    'normal': 'lawngreen',
+    'adversary': 'red',
     'restored': 'cyan',
     # 'train': 'violet',
     # 'classic': 'darkviolet'
@@ -94,20 +127,14 @@ marker_map = {
     # 'mono': random.choice(mv.MARKERS),
     # 'train': random.choice(mv.MARKERS),
     # 'classic': random.choice(mv.MARKERS)
-    'normal': '.',
-    'adversary': '^',
-    'restored': 'P',
+    # 'normal': '.',
+    # 'adversary': '^',
+    # 'restored': 'P',
     # 'train': 'd',
-    # 'classic': '*'
-}
-
-order_map = {
-    'normal': 0,
-    'adversary': 2,
-    'restored': 3,
-    # 'train': 1,
-    # 'classic': 4
-
+    # # 'classic': '*'
+    'normal': '.',
+    'adversary': '.',
+    'restored': '.',
 }
 
 
@@ -119,66 +146,6 @@ def remove_outliers(data: ndarray):
     c[(c >= (a - b) * 1.5 + a) | (c <= b - (a - b) * 1.5)] = np.nan
     c.fillna(c.median(), inplace=True)
     return np.array(c)
-
-
-def plot_embedding(normal_data, adversary_data, restored_data, dataset, attacker_name):
-    # data = np.concatenate((src_data, tgt_data), 0)
-    # x_min, x_max = np.min(data, 0), np.max(data, 0)
-    # src_data = (src_data - x_min) / (x_max - x_min)
-    # tgt_data = (tgt_data - x_min) / (x_max - x_min)
-
-    normal_data = remove_outliers(normal_data)
-    adversary_data = remove_outliers(adversary_data)
-    restored_data = remove_outliers(restored_data)
-
-    ax = plt.subplot()
-    # overlap = Cal_area_2poly(normal_data, adversary_data)
-    # skew = stats.skew(np.concatenate((src_data, tgt_data), axis=0))
-    # skew = stats.skew(adversary_data)
-    # skew = round(float(abs(skew[0]) + abs(skew[1])), 2)
-    # kurtosis = stats.kurtosis(tgt_data)
-    ax.scatter(normal_data[:, 0],
-               normal_data[:, 1],
-               label=name_map['normal'],
-               c=color_map['normal'],
-               marker=marker_map['normal'],
-               )
-
-    ax.scatter(adversary_data[:, 0],
-               adversary_data[:, 1],
-               label=name_map['adversary'],
-               c=color_map['adversary'],
-               marker=marker_map['adversary'],
-               )
-
-    ax.scatter(restored_data[:, 0],
-               restored_data[:, 1],
-               label=name_map['restored'],
-               c=color_map['restored'],
-               marker=marker_map['restored'],
-               )
-
-    # for i in range(data.shape[0]):
-    #     plt.text(data[i, 0], data[i, 1], str(label[i]),
-    #              color=colors[label[i]],
-    #              fontdict={'weight': 'bold', 'size': 9})
-    plt.xticks([])
-    plt.yticks([])
-    # plt.xlabel('Overlap: {}% Skewness: {}'.format(round(overlap, 2), skew), fontsize=18)
-    plt.ylabel('t-SNE'.format(), fontsize=18)
-    plt.legend(fontsize=14, loc=2)
-    # plt.title(title + ' Src_dense: {} Tgt_dense'.format(round(src_dense, 2)), round(tgt_dense, 2))
-    # plt.savefig('{}--{}-{}-{}-Overlap-{}.pdf'.format(title, order_map[tgt_label], src_label, tgt_label, overlap), dpi=1000)
-    # plt.title(title + ' Overlap: {}'.format(round(overlap, 2)))
-    tikz_code = tikzplotlib.get_tikz_code()
-    tex_src = tex_template.replace('$tikz_code$', tikz_code)
-
-    fout = open('{}-{}.tex'.format(dataset, attacker_name), mode='w', encoding='utf8')
-    fout.write(tex_src)
-    fout.close()
-
-    plt.show()
-    plt.savefig('{}-{}.pdf'.format(dataset, attacker_name), dpi=1000)
 
 
 class PyABSAModelWrapper(HuggingFaceModelWrapper):
@@ -201,6 +168,8 @@ class PyABSAModelWrapper(HuggingFaceModelWrapper):
             raw_outputs = self.model.infer(text_input, print_result=False, **kwargs)
             outputs.append(raw_outputs['probs'])
         return outputs
+
+
 class SentAttacker:
 
     def __init__(self, model, recipe_class=BAEGarg2019):
@@ -216,7 +185,80 @@ class SentAttacker:
 
         self.attacker = Attacker(recipe, _dataset)
 
-def tsne_plot(ckpt: str, attacker_name):
+
+def cal_sentence_pair_similarity(embedding1, embedding2):
+    cosine_score = util.pytorch_cos_sim(embedding1, embedding2)
+    cosine_score = torch.sum(cosine_score)
+    return cosine_score
+
+
+def plot_embedding(normal_data, adversary_data, restored_data, avg_sim_score_normal, avg_sim_score_adv,
+                   avg_sim_score_restored, dataset, attacker_name):
+    ax = plt.subplot()
+    # overlap1 = Cal_area_2poly(normal_data, restored_data)
+    # overlap2 = Cal_area_2poly(normal_data, adversary_data)
+    ax.scatter(normal_data[:, 0],
+               normal_data[:, 1],
+               label=name_map['normal'],
+               c=color_map['normal'],
+               marker=marker_map['normal'],
+               )
+
+    ax.scatter(adversary_data[:, 0],
+               adversary_data[:, 1],
+               label=name_map['adversary'],
+               c=color_map['adversary'],
+               marker=marker_map['adversary'],
+               )
+
+    ax.scatter(restored_data[:, 0],
+               restored_data[:, 1],
+               label=name_map['restored'],
+               c=color_map['restored'],
+               marker=marker_map['restored'],
+               )
+
+    plt.xticks([])
+    plt.yticks([])
+    plt.ylabel('{} ({})'.format(dataset.replace('TSNE', ''), attacker_name.upper()), fontsize=18)
+    # plt.ylabel('', fontsize=18)
+    plt.xlabel(
+        f'$\Delta$_{"{res}"}: {round(avg_sim_score_adv, 2)}% Res-$\Delta$_{"{res}"}: {round(avg_sim_score_restored, 2)}%')
+    plt.legend(fontsize=14, loc=2)
+
+    tikz_code = tikzplotlib.get_tikz_code()
+    tex_src = tex_tsne_template.replace('$tikz_code$', tikz_code)
+
+    fout = open('{}-{}.tex'.format(dataset, attacker_name), mode='w', encoding='utf8')
+    fout.write(tex_src)
+    fout.close()
+
+    plt.show()
+    plt.savefig('{}-{}.pdf'.format(dataset, attacker_name), dpi=1000)
+
+
+def plot_dist_similarity_ecdf(normal_data, adversary_data, restored_data, dataset, attacker):
+    import seaborn as sns
+    ax1 = plt.subplot()
+    ax2 = plt.subplot()
+    ax3 = plt.subplot()
+    sns.ecdfplot(normal_data, linewidth=2, color='lightgreen', label='Normal', ax=ax1)
+    sns.ecdfplot(adversary_data, linewidth=2, color='red', label='Adversary', ax=ax2)
+    sns.ecdfplot(restored_data, linewidth=2, color='cyan', label='Restored', ax=ax3)
+    plt.ylabel('Cumulative Distribution', fontsize=18)
+    plt.xlabel('{} ({})'.format(dataset, attacker.upper()), fontsize=18)
+    plt.legend(fontsize=18, loc=3)
+    plt.minorticks_on()
+    plt.grid()
+    tikz_code = tikzplotlib.get_tikz_code()
+    tex_src = tex_sim_template.replace('$tikz_code$', tikz_code)
+    with open('ecdf_{}_{}.tex'.format(dataset, attacker), mode='w', encoding='utf8') as fout:
+        fout.write(tex_src)
+
+    plt.show()
+
+
+def tsne_plot(ckpt: str, attacker_name, num_points=1000):
     device = autocuda.auto_cuda()
     attack_recipes = {
         'bae': BAEGarg2019,
@@ -229,76 +271,106 @@ def tsne_plot(ckpt: str, attacker_name):
         'clare': CLARE2020,
 
     }
-    tad_classifier = TADCheckpointManager.get_tad_text_classifier(ckpt)
-    attacker = SentAttacker(tad_classifier, attack_recipes[attacker_name.lower()])
+    if not hasattr(__name__, 'tad_classifier'):
+        tad_classifier = TADCheckpointManager.get_tad_text_classifier(ckpt)
+        attacker = SentAttacker(tad_classifier, attack_recipes[attacker_name.lower()])
+        tokenizer = AutoTokenizer.from_pretrained('microsoft/deberta-v3-base')
 
     dataset = ckpt.split('-')[-1]
 
     normal_data = []
     adversary_data = []
     restored_data = []
-
-    cache_path = '{}-{}.pkl'.format(dataset, attacker_name)
+    sim_score_normal = []
+    sim_score_adversary = []
+    sim_score_restored = []
+    cache_path = '{}-{}-{}.pkl'.format(dataset, attacker_name, num_points)
     if os.path.exists(cache_path):
         with open(cache_path, mode='rb') as f:
-            normal_data, adversary_data, restored_data = pickle.load(f)
+            normal_data, adversary_data, restored_data, sim_score_normal, sim_score_adversary, sim_score_restored = pickle.load(
+                f)
     else:
-        normal_set = DatasetItem(attacker_name, find_cwd_files([attacker_name, dataset, '.org', '.inference']))
+        # if True:
+        normal_set = DatasetItem(attacker_name, find_cwd_files([attacker_name, dataset, 'test', '.org', '.inference']))
         for f in normal_set:
             with open(f, mode='r', encoding='utf8') as fin:
                 lines = fin.readlines()
                 for i in range(0, len(lines)):
                     text, labels = lines[i].strip().split('!ref!')[0], lines[i].strip().split('!ref!')[1]
-                    normal_data.append(text)
-                    try:
-                        result = attacker.attacker.simple_attack(text, int(labels.split(',')[0].strip()))
-                    except Exception as e:
-                        print(e)
-                        continue
+                    result = attacker.attacker.simple_attack(text, int(labels.split(',')[0].strip()))
+                    if len(adversary_data) >= num_points:
+                        break
                     if isinstance(result, SuccessfulAttackResult):
-                        adversary_data.append(result.perturbed_result.attacked_text.text)
-                        infer_res = tad_classifier.infer(result.perturbed_result.attacked_text.text + '!ref!' + labels, defense='pwws', print_result=True)
+                        infer_res = tad_classifier.infer(result.perturbed_result.attacked_text.text + '!ref!' + labels,
+                                                         defense='pwws', print_result=True)
                         # if infer_res['label'] == str(result.original_result.ground_truth_output):
                         if infer_res['is_adv_label'] == '1':
-                            restored_data.append(result.perturbed_result.attacked_text.text)
+                            normal_data.append(text)
+                            adversary_data.append(result.perturbed_result.attacked_text.text)
+                            restored_data.append(infer_res['restored_text'])
 
-        pickle.dump((normal_data, adversary_data, restored_data), open(cache_path, mode='wb'))
+                            normal_ids = tokenizer(text, max_length=80, padding='max_length', truncation=True,
+                                                   return_tensors="pt")
+                            adversary_ids = tokenizer(result.perturbed_result.attacked_text.text, max_length=80,
+                                                      padding='max_length', truncation=True, return_tensors="pt")
+                            restored_ids = tokenizer(infer_res['restored_text'], max_length=80, padding='max_length',
+                                                     truncation=True, return_tensors="pt")
+
+                            embedding1 = tad_classifier.model(inputs=[normal_ids.input_ids.to(device)])['sent_logits']
+                            embedding2 = tad_classifier.model(inputs=[adversary_ids.input_ids.to(device)])[
+                                'sent_logits']
+                            embedding3 = tad_classifier.model(inputs=[restored_ids.input_ids.to(device)])['sent_logits']
+
+                            sim_score_normal.append(cal_sentence_pair_similarity(embedding1[0], embedding1[0]).item())
+                            sim_score_adversary.append(
+                                cal_sentence_pair_similarity(embedding1[0], embedding2[0]).item())
+                            sim_score_restored.append(cal_sentence_pair_similarity(embedding1[0], embedding3[0]).item())
+
+        pickle.dump(
+            (normal_data, adversary_data, restored_data, sim_score_normal, sim_score_adversary, sim_score_restored),
+            open(cache_path, mode='wb'))
+
+    plot_dist_similarity_ecdf(sim_score_normal, sim_score_adversary, sim_score_restored, dataset, attacker_name)
+
+    sim_score1 = np.sum(sim_score_normal) / np.sum(sim_score_normal)
+    sim_score2 = np.sum(sim_score_adversary) / np.sum(sim_score_normal)
+    sim_score3 = np.sum(sim_score_restored) / np.sum(sim_score_normal)
+    print('average similarity score of original text and original text: {}'.format(sim_score1))
+    print('average similarity score of original text and adversarial text: {}'.format(sim_score2))
+    print('average similarity score of original text and restored text: {}'.format(sim_score3))
 
     random.shuffle(normal_data)
     random.shuffle(adversary_data)
     random.shuffle(restored_data)
-
-    # normal_data = normal_data
-    # adversary_data = adversary_data[:len(normal_data)]
-    # normal_data = normal_data[:500]
-    # adversary_data = adversary_data[:500]
-    # adversary_data = adversary_data
-
-    pretrained_config = AutoConfig.from_pretrained('microsoft/deberta-v3-base')
-    tokenizer = AutoTokenizer.from_pretrained('microsoft/deberta-v3-base')
-    PTM = DebertaV2Model(pretrained_config).to(tad_classifier.opt.device)
-
     output = None
     with torch.no_grad():
-        for i in tqdm.tqdm(range(0, len(normal_data + adversary_data + restored_data), 16)):
-            ids = tokenizer((normal_data + adversary_data + restored_data)[i:i + 16], max_length=80, padding='max_length', truncation=True, return_tensors="pt")
+        for i in tqdm.tqdm(range(0, len(normal_data + adversary_data + restored_data), 10)):
+            ids = tokenizer((normal_data + adversary_data + restored_data)[i:i + 10], max_length=80,
+                            padding='max_length', truncation=True, return_tensors="pt")
             ids = ids.to(device)
 
-            feat = PTM(**ids)['last_hidden_state']
-            # feat = feat.view(16, -1).cpu().numpy()
-            length = np.count_nonzero(feat.cpu().numpy(), axis=1)
-            feat = feat.cpu().sum(dim=1)
-            feat = feat / length
+            outputs = tad_classifier.model(inputs=[ids.input_ids])
+            feat = outputs['last_hidden_state'].cpu()
+            feat = feat.view(10, -1)
             try:
                 output = np.concatenate((output, feat), axis=0) if output is not None else feat
-            except:
-                pass
-    tsne = TSNE(n_components=2, init='pca', learning_rate=200, perplexity=50)
-    result = tsne.fit_transform(output)
-    return plot_embedding(result[:len(normal_data)],
-                          result[len(normal_data):len(adversary_data)],
-                          result[len(adversary_data):],
-                          dataset,
+            except Exception as e:
+                print(e)
+
+    manifold = TSNE(n_components=2, init='random', learning_rate=200, perplexity=30)
+
+    result = manifold.fit_transform(output)
+    normal_res = result[:len(normal_data)]
+    adversary_res = result[len(normal_data):len(normal_data) + len(adversary_data)]
+    restored_res = result[len(normal_data) + len(adversary_data):]
+
+    return plot_embedding(normal_res,
+                          adversary_res,
+                          restored_res,
+                          sim_score1,
+                          sim_score2,
+                          sim_score3,
+                          manifold.__class__.__name__ + dataset,
                           attacker_name)
 
 
@@ -310,8 +382,6 @@ def Cal_area_2poly(data1, data2):
     :return: 当前物体与待比较的物体的面积交集
     """
 
-    a = Polygon(data1)
-    b = a.convex_hull
     poly1 = Polygon(data1).convex_hull  # Polygon：多边形对象
     poly2 = Polygon(data2).convex_hull
     if not poly1.intersects(poly2):
@@ -324,16 +394,23 @@ def Cal_area_2poly(data1, data2):
 if __name__ == '__main__':
     ckpts = [
         'TAD-SST2',
-        'TAD-Amazon',
-        'TAD-AGNews',
+        'TAD-AGNews10K',
+        # 'TAD-Amazon',
     ]
     attacker_names = [
         'pwws',
         'textfooler',
+        'bae',
     ]
-    REPEAT = 3
-    for i in range(REPEAT):
-        for ckpt in ckpts:
-            for attacker_name in attacker_names:
+    REPEAT = 1
+    for ckpt in ckpts:
+        for attacker_name in attacker_names:
+            for i in range(REPEAT):
                 random.seed(i)
-                tsne_plot('TAD-SST2', attacker_name)
+                # tsne_plot(ckpt, attacker_name, num_points=500)
+
+for f in findfile.find_cwd_files('.tex', exclude_key='.pdf', recursive=1):
+    os.system('pdflatex {}'.format(f))
+
+for f in findfile.find_cwd_files('.pdf', exclude_key='.tex', recursive=1):
+    os.system('pdfcrop {} {}'.format(findfile.find_cwd_file([f]), findfile.find_cwd_file([f])))

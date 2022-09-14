@@ -16,10 +16,12 @@ import os
 import numpy as np
 import pandas
 from pyabsa.functional.dataset import detect_dataset
-from transformers import AutoTokenizer, TFAutoModelForSequenceClassification, pipeline, AutoModelForSequenceClassification
+from transformers import AutoTokenizer, TFAutoModelForSequenceClassification, pipeline, \
+    AutoModelForSequenceClassification
 
 from textattack import Attacker
-from textattack.attack_recipes import BERTAttackLi2020, BAEGarg2019, PWWSRen2019, TextFoolerJin2019, PSOZang2020, IGAWang2019, GeneticAlgorithmAlzantot2018, DeepWordBugGao2018
+from textattack.attack_recipes import BERTAttackLi2020, BAEGarg2019, PWWSRen2019, TextFoolerJin2019, PSOZang2020, \
+    IGAWang2019, GeneticAlgorithmAlzantot2018, DeepWordBugGao2018
 from textattack.attack_recipes import TextFoolerJin2019
 from textattack.attack_results import SuccessfulAttackResult
 from textattack.datasets import HuggingFaceDataset, Dataset
@@ -28,7 +30,8 @@ from textattack.models.wrappers import ModelWrapper, HuggingFaceModelWrapper
 import os
 
 import autocuda
-from pyabsa import TCConfigManager, GloVeTCModelList, TCDatasetList, BERTTCModelList, TADCheckpointManager, TCCheckpointManager
+from pyabsa import TCConfigManager, GloVeTCModelList, TCDatasetList, BERTTCModelList, TADCheckpointManager, \
+    TCCheckpointManager
 
 if "TF_CPP_MIN_LOG_LEVEL" not in os.environ:
     os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
@@ -93,14 +96,23 @@ def generate_adversarial_example(dataset, attack_recipe, tad_classifier):
     attack_recipe_name = attack_recipe.__name__
     sent_attacker = SentAttacker(tad_classifier, attack_recipe)
 
-    filter_key_words = ['.py', '.md', 'readme', 'log', 'result', 'zip', '.state_dict', '.model', '.png', 'acc_', 'f1_', '.origin', '.adv', '.csv']
+    filter_key_words = ['.py', '.md', 'readme', 'log', 'result', 'zip', '.state_dict', '.model', '.png', 'acc_', 'f1_',
+                        '.origin', '.adv', '.csv']
     dataset_file = {'train': [], 'test': [], 'valid': []}
     search_path = './'
     task = 'text_classification'
-    dataset_file['train'] += find_files(search_path, [dataset, 'train', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'test.', 'synthesized'] + filter_key_words)
-    dataset_file['test'] += find_files(search_path, [dataset, 'test', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
-    dataset_file['valid'] += find_files(search_path, [dataset, 'valid', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
-    dataset_file['valid'] += find_files(search_path, [dataset, 'dev', task], exclude_key=['.adv', '.org', '.defense', '.inference', 'train.', 'synthesized'] + filter_key_words)
+    dataset_file['train'] += find_files(search_path, [dataset, 'train', task],
+                                        exclude_key=['.adv', '.org', '.defense', '.inference', 'test.',
+                                                     'synthesized'] + filter_key_words)
+    dataset_file['test'] += find_files(search_path, [dataset, 'test', task],
+                                       exclude_key=['.adv', '.org', '.defense', '.inference', 'train.',
+                                                    'synthesized'] + filter_key_words)
+    dataset_file['valid'] += find_files(search_path, [dataset, 'valid', task],
+                                        exclude_key=['.adv', '.org', '.defense', '.inference', 'train.',
+                                                     'synthesized'] + filter_key_words)
+    dataset_file['valid'] += find_files(search_path, [dataset, 'dev', task],
+                                        exclude_key=['.adv', '.org', '.defense', '.inference', 'train.',
+                                                     'synthesized'] + filter_key_words)
 
     for dat_type in [
         'train',
@@ -161,17 +173,22 @@ def generate_adversarial_example(dataset, attack_recipe, tad_classifier):
                         ))
                     if not os.path.exists(os.path.dirname(data_file) + f'/{dataset}{attack_recipe_name}/'):
                         os.makedirs(os.path.dirname(data_file) + f'/{dataset}{attack_recipe_name}/')
-                    fout = open(os.path.dirname(data_file) + '/{}{}/{}.{}.{}.org'.format(dataset, attack_recipe_name, os.path.basename(data_file), i + 1, attack_recipe_name), mode='w',
+                    fout = open(os.path.dirname(data_file) + '/{}{}/{}.{}.{}.org'.format(dataset, attack_recipe_name,
+                                                                                         os.path.basename(data_file),
+                                                                                         i + 1, attack_recipe_name),
+                                mode='w',
                                 encoding='utf8')
                     fout.writelines(org_data)
                     fout.close()
 
-                    fout = open(os.path.dirname(data_file) + '/{}{}/{}.{}.{}.adv'.format(dataset, attack_recipe_name, os.path.basename(data_file), i + 1, attack_recipe_name), mode='w', encoding='utf8')
+                    fout = open(os.path.dirname(data_file) + '/{}{}/{}.{}.{}.adv'.format(dataset, attack_recipe_name,
+                                                                                         os.path.basename(data_file),
+                                                                                         i + 1, attack_recipe_name),
+                                mode='w', encoding='utf8')
                     fout.writelines(adv_data)
                     fout.close()
 
                 # print('Defense Success Rate: {}'.format(def_success / count))
-
 
 
 if __name__ == '__main__':
@@ -208,4 +225,5 @@ if __name__ == '__main__':
             'GA': GeneticAlgorithmAlzantot2018,
             'wordbugger': DeepWordBugGao2018,
         }
-        generate_adversarial_example(dataset, attack_recipe=attack_recipes[attack_name.lower()], tad_classifier=tad_classifier)
+        generate_adversarial_example(dataset, attack_recipe=attack_recipes[attack_name.lower()],
+                                     tad_classifier=tad_classifier)
