@@ -3,6 +3,7 @@ ModelArgs Class
 ===============
 """
 
+
 from dataclasses import dataclass
 import json
 import os
@@ -94,7 +95,7 @@ HUGGINGFACE_MODELS = {
 
 PYABSA_MODELS = {
     #
-    # PyABSA TAD-BERT
+    # PyABSA defense models
     #
     "tadbert-sst2": "tad-bert-sst2",
     "taddeberta-sst2": "tad-sst2",
@@ -158,7 +159,7 @@ class ModelArgs:
             required=False,
             default=None,
             help="Name of or path to a pre-trained TextAttack model to load. Choices: "
-                 + str(model_names),
+            + str(model_names),
         )
         model_group.add_argument(
             "--model-from-file",
@@ -300,8 +301,8 @@ class ModelArgs:
                     config = json.load(f)
                 model_class = config["architectures"]
                 if (
-                        model_class == "LSTMForClassification"
-                        or model_class == "WordCNNForClassification"
+                    model_class == "LSTMForClassification"
+                    or model_class == "WordCNNForClassification"
                 ):
                     model = eval(
                         f"textattack.models.helpers.{model_class}.from_pretrained({args.model})"

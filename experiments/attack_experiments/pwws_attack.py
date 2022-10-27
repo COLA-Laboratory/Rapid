@@ -30,7 +30,7 @@ from textattack.models.wrappers import ModelWrapper, HuggingFaceModelWrapper
 import os
 
 import autocuda
-from pyabsa import TCConfigManager, GloVeTCModelList, TCDatasetList, BERTTCModelList, TCCheckpointManager
+from anonymous_demo import TCConfigManager, GloVeTCModelList, TCDatasetList, BERTTCModelList, TCCheckpointManager
 
 if "TF_CPP_MIN_LOG_LEVEL" not in os.environ:
     os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"

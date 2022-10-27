@@ -22,6 +22,7 @@ flair.device = device
 
 
 class AttackedText:
+
     """A helper class that represents a string that can be attacked.
 
     Models that take multiple sentences as input separate them by ``SPLIT_TOKEN``.
@@ -148,14 +149,14 @@ class AttackedText:
 
         for word_idx, word in enumerate(self.words):
             assert (
-                    word in flair_word_list
+                word in flair_word_list
             ), "word absent in flair returned part-of-speech tags"
             word_idx_in_flair_tags = flair_word_list.index(word)
             if word_idx == desired_word_idx:
                 return flair_pos_list[word_idx_in_flair_tags]
             else:
-                flair_word_list = flair_word_list[word_idx_in_flair_tags + 1:]
-                flair_pos_list = flair_pos_list[word_idx_in_flair_tags + 1:]
+                flair_word_list = flair_word_list[word_idx_in_flair_tags + 1 :]
+                flair_pos_list = flair_pos_list[word_idx_in_flair_tags + 1 :]
 
         raise ValueError(
             f"Did not find word from index {desired_word_idx} in flair POS tag"
@@ -182,8 +183,8 @@ class AttackedText:
             if word_idx == desired_word_idx:
                 return flair_ner_list[word_idx_in_flair_tags]
             else:
-                flair_word_list = flair_word_list[word_idx_in_flair_tags + 1:]
-                flair_ner_list = flair_ner_list[word_idx_in_flair_tags + 1:]
+                flair_word_list = flair_word_list[word_idx_in_flair_tags + 1 :]
+                flair_ner_list = flair_ner_list[word_idx_in_flair_tags + 1 :]
 
         raise ValueError(
             f"Did not find word from index {desired_word_idx} in flair POS tag"
@@ -380,7 +381,7 @@ class AttackedText:
     def get_deletion_indices(self):
         return self.attack_attrs["original_index_map"][
             self.attack_attrs["original_index_map"] == -1
-            ]
+        ]
 
     def generate_new_attacked_text(self, new_words):
         """Returns a new AttackedText object and replaces old list of words
@@ -510,7 +511,7 @@ class AttackedText:
                 token = tokens[j].lower()
                 idx = word.lower().find(token)
                 if idx == 0:
-                    word = word[idx + len(token):]
+                    word = word[idx + len(token) :]
                     matched_tokens.append(j)
                     last_matched = j
                 j += 1
@@ -568,6 +569,10 @@ class AttackedText:
     def num_words(self):
         """Returns the number of words in the sequence."""
         return len(self.words)
+
+    @property
+    def newly_swapped_words(self):
+        return [self.words[i] for i in self.attack_attrs["newly_modified_indices"]]
 
     def printable_text(self, key_color="bold", key_color_method=None):
         """Represents full text input. Adds field descriptions.

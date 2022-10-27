@@ -37,7 +37,7 @@ class InputColumnModification(PreTransformationConstraint):
         idx = 0
         indices_to_modify = set()
         for column, words in zip(
-                current_text.column_labels, current_text.words_per_input
+            current_text.column_labels, current_text.words_per_input
         ):
             num_words = len(words)
             if column not in self.columns_to_ignore:

@@ -20,7 +20,7 @@ class LanguageTool(Constraint):
     """
 
     def __init__(
-            self, grammar_error_threshold=0, compare_against_original=True, language="en-US"
+        self, grammar_error_threshold=0, compare_against_original=True, language="en-US"
     ):
         super().__init__(compare_against_original)
         self.lang_tool = language_tool_python.LanguageTool(language)

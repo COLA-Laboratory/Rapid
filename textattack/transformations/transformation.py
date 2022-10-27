@@ -14,12 +14,12 @@ class Transformation(ReprMixin, ABC):
     potential adversarial example."""
 
     def __call__(
-            self,
-            current_text,
-            pre_transformation_constraints=[],
-            indices_to_modify=None,
-            shifted_idxs=False,
-            return_indices=False,
+        self,
+        current_text,
+        pre_transformation_constraints=[],
+        indices_to_modify=None,
+        shifted_idxs=False,
+        return_indices=False,
     ):
         """Returns a list of all possible transformations for ``current_text``.
         Applies the ``pre_transformation_constraints`` then calls

@@ -20,8 +20,8 @@ from metric_visualizer import MetricVisualizer
 from numpy import ndarray
 from pandas import DataFrame
 
-from pyabsa import TADCheckpointManager
-from pyabsa.functional.dataset import DatasetItem
+from anonymous_demo import TADCheckpointManager
+from anonymous_demo.functional.dataset import DatasetItem
 from textattack.models.wrappers import HuggingFaceModelWrapper
 
 from textattack import Attacker
@@ -103,9 +103,10 @@ tex_sim_template = r"""
     """
 
 name_map = {
-    'normal': 'Normal',
-    'adversary': 'Adversary',
-    'restored': 'Restored',
+    'normal': 'Natural Example',
+    'adversary': 'Adversarial Example',
+    'restored': 'Repaired Example',
+    # 'restored': 'Restored',
 }
 
 color_map = {
@@ -222,13 +223,13 @@ def plot_embedding(normal_data, adversary_data, restored_data, avg_sim_score_nor
     plt.yticks([])
     plt.ylabel('{} ({})'.format(dataset.replace('TSNE', ''), attacker_name.upper()), fontsize=18)
     # plt.ylabel('', fontsize=18)
-    plt.xlabel(
-        f'$\Delta$_{"{res}"}: {round(avg_sim_score_adv, 2)}% Res-$\Delta$_{"{res}"}: {round(avg_sim_score_restored, 2)}%')
+    # plt.xlabel(
+    #     f'$\Delta$_{"{res}"}: {round(avg_sim_score_adv, 2)}% Res-$\Delta$_{"{res}"}: {round(avg_sim_score_restored, 2)}%')
     plt.legend(fontsize=14, loc=2)
 
     tikz_code = tikzplotlib.get_tikz_code()
     tex_src = tex_tsne_template.replace('$tikz_code$', tikz_code)
-
+    tex_src = tex_src.replace(', only marks]', ',mark size=2, only marks]')
     fout = open('{}-{}.tex'.format(dataset, attacker_name), mode='w', encoding='utf8')
     fout.write(tex_src)
     fout.close()
@@ -237,16 +238,17 @@ def plot_embedding(normal_data, adversary_data, restored_data, avg_sim_score_nor
     plt.savefig('{}-{}.pdf'.format(dataset, attacker_name), dpi=1000)
 
 
-def plot_dist_similarity_ecdf(normal_data, adversary_data, restored_data, dataset, attacker):
+def plot_dist_similarity_ecdf(normal_data, simscore1, adversary_data, simscore2, restored_data, simscore3, dataset, attacker):
     import seaborn as sns
     ax1 = plt.subplot()
     ax2 = plt.subplot()
     ax3 = plt.subplot()
-    sns.ecdfplot(normal_data, linewidth=2, color='lightgreen', label='Normal', ax=ax1)
+    sns.ecdfplot(normal_data, linewidth=2, color='lightgreen', label='Natural', ax=ax1)
     sns.ecdfplot(adversary_data, linewidth=2, color='red', label='Adversary', ax=ax2)
-    sns.ecdfplot(restored_data, linewidth=2, color='cyan', label='Restored', ax=ax3)
-    plt.ylabel('Cumulative Distribution', fontsize=18)
-    plt.xlabel('{} ({})'.format(dataset, attacker.upper()), fontsize=18)
+    sns.ecdfplot(restored_data, linewidth=2, color='cyan', label='Repaired Adversary', ax=ax3)
+    # plt.ylabel('Cumulative Distribution', fontsize=18)
+    plt.xlabel('$\Delta_{adv}$: ' + str(round(simscore2, 2)) + '% $\Delta_{res}$: ' + '{}%'.format(round(simscore3, 2)), fontsize=18)
+    plt.ylabel('{} ({})'.format(dataset, attacker.upper()), fontsize=18)
     plt.legend(fontsize=18, loc=3)
     plt.minorticks_on()
     plt.grid()
@@ -330,14 +332,13 @@ def tsne_plot(ckpt: str, attacker_name, num_points=1000):
             (normal_data, adversary_data, restored_data, sim_score_normal, sim_score_adversary, sim_score_restored),
             open(cache_path, mode='wb'))
 
-    plot_dist_similarity_ecdf(sim_score_normal, sim_score_adversary, sim_score_restored, dataset, attacker_name)
-
     sim_score1 = np.sum(sim_score_normal) / np.sum(sim_score_normal)
     sim_score2 = np.sum(sim_score_adversary) / np.sum(sim_score_normal)
     sim_score3 = np.sum(sim_score_restored) / np.sum(sim_score_normal)
     print('average similarity score of original text and original text: {}'.format(sim_score1))
     print('average similarity score of original text and adversarial text: {}'.format(sim_score2))
     print('average similarity score of original text and restored text: {}'.format(sim_score3))
+    plot_dist_similarity_ecdf(sim_score_normal, sim_score1, sim_score_adversary, sim_score2, sim_score_restored, sim_score3, dataset, attacker_name)
 
     random.shuffle(normal_data)
     random.shuffle(adversary_data)
@@ -393,9 +394,9 @@ def Cal_area_2poly(data1, data2):
 
 if __name__ == '__main__':
     ckpts = [
-        'TAD-SST2',
-        'TAD-AGNews10K',
-        # 'TAD-Amazon',
+        # 'TAD-SST2',
+        # 'TAD-AGNews10K',
+        'TAD-Amazon',
     ]
     attacker_names = [
         'pwws',
@@ -407,10 +408,13 @@ if __name__ == '__main__':
         for attacker_name in attacker_names:
             for i in range(REPEAT):
                 random.seed(i)
-                # tsne_plot(ckpt, attacker_name, num_points=500)
+                tsne_plot(ckpt, attacker_name, num_points=500)
 
 for f in findfile.find_cwd_files('.tex', exclude_key='.pdf', recursive=1):
     os.system('pdflatex {}'.format(f))
 
 for f in findfile.find_cwd_files('.pdf', exclude_key='.tex', recursive=1):
     os.system('pdfcrop {} {}'.format(findfile.find_cwd_file([f]), findfile.find_cwd_file([f])))
+
+for f in findfile.find_cwd_files(or_key=['.log', '.aux', '.out'], recursive=1):
+    os.remove(f)

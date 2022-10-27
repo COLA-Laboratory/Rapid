@@ -5,6 +5,7 @@ EvalModelCommand class
 
 """
 
+
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 from dataclasses import dataclass
 
@@ -53,7 +54,7 @@ class EvalModelCommand(TextAttackCommand):
         ground_truth_outputs = []
         i = 0
         while i < min(args.num_examples, len(dataset)):
-            dataset_batch = dataset[i: min(args.num_examples, i + args.batch_size)]
+            dataset_batch = dataset[i : min(args.num_examples, i + args.batch_size)]
             batch_inputs = []
             for (text_input, ground_truth_output) in dataset_batch:
                 attacked_text = textattack.shared.AttackedText(text_input)
@@ -94,7 +95,7 @@ class EvalModelCommand(TextAttackCommand):
         # Default to 'all' if no model chosen.
         if not (args.model or args.model_from_huggingface or args.model_from_file):
             for model_name in list(HUGGINGFACE_MODELS.keys()) + list(
-                    TEXTATTACK_MODELS.keys()
+                TEXTATTACK_MODELS.keys()
             ):
                 args.model = model_name
                 self.test_model_on_dataset(args)

@@ -5,8 +5,8 @@
 # github: https://github.com/yangheng95
 # Copyright (C) 2021. All Rights Reserved.
 
-from pyabsa import TextClassificationTrainer, ClassificationDatasetList, TCConfigManager, BERTTCModelList
-from pyabsa.functional.dataset import DatasetItem
+from anonymous_demo import TextClassificationTrainer, ClassificationDatasetList, TCConfigManager, BERTTCModelList
+from anonymous_demo.functional.dataset import DatasetItem
 
 classification_config_english = TCConfigManager.get_classification_config_english()
 classification_config_english.model = BERTTCModelList.BERT

@@ -20,7 +20,7 @@ from textattack.models.wrappers import HuggingFaceModelWrapper
 import os
 
 import autocuda
-from pyabsa import TADCheckpointManager
+from anonymous_demo import TADCheckpointManager
 
 
 def get_ensembled_tad_results(results):

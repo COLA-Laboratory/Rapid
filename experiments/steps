@@ -1,0 +1,4 @@
+1. clean_experiments # for training a surrogate/objective model (BERT, etc.)
+2. generate_datasets # Use the attacker to generate adversarial examples
+3. tad_experiments # Train the surrogate model using train_*_tadbert.py
+4. tad_experiments # Evaluate the defense method using main_tad_*.py

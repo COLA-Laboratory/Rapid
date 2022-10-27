@@ -70,7 +70,7 @@ class GreedyWordSwapWIR(SearchMethod):
                 # is the same size as softmax_saliency_scores
                 if search_over:
                     delta_ps = delta_ps + [0.0] * (
-                            len(softmax_saliency_scores) - len(delta_ps)
+                        len(softmax_saliency_scores) - len(delta_ps)
                     )
                     break
 

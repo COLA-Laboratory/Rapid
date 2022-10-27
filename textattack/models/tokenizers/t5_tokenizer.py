@@ -47,8 +47,8 @@ class T5Tokenizer:
                     The sequence or batch of sequences to be encoded. Each sequence can be a string or a list of strings.
         """
         assert isinstance(text, str) or (
-                isinstance(text, (list, tuple))
-                and (len(text) == 0 or isinstance(text[0], str))
+            isinstance(text, (list, tuple))
+            and (len(text) == 0 or isinstance(text[0], str))
         ), "`text` must be a string or a list of strings."
         if isinstance(text, str):
             text = self.tokenization_prefix + text

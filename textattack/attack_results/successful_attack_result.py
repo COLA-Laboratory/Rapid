@@ -4,6 +4,7 @@ SuccessfulAttackResult Class
 
 """
 
+
 from .attack_result import AttackResult
 
 

@@ -33,15 +33,15 @@ class GoalFunctionResult(ABC):
     """
 
     def __init__(
-            self,
-            attacked_text,
-            raw_output,
-            output,
-            goal_status,
-            score,
-            num_queries,
-            ground_truth_output,
-            goal_function_result_type="",
+        self,
+        attacked_text,
+        raw_output,
+        output,
+        goal_status,
+        score,
+        num_queries,
+        ground_truth_output,
+        goal_function_result_type="",
     ):
         self.attacked_text = attacked_text
         self.raw_output = raw_output

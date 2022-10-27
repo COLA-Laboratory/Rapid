@@ -24,6 +24,7 @@ from textattack.attack_recipes import (BERTAttackLi2020,
                                        BAEGarg2019,
                                        CLARE2020,
                                        PWWSRen2019,
+                                       GeneticAlgorithmAlzantot2018,
                                        TextFoolerJin2019,
                                        PSOZang2020,
                                        IGAWang2019,
@@ -137,6 +138,8 @@ def generate_adversarial_example(dataset, attack_recipe, tad_classifier):
                     text, label = line.split('$LABEL$')
                     text = text.strip()
                     label = int(label.strip())
+                    if len(text.split()) > 100:
+                        continue
                     data.append((text, label))
                     label_set.add(label)
 
@@ -147,77 +150,87 @@ def generate_adversarial_example(dataset, attack_recipe, tad_classifier):
             for i in range(len(folds)):
                 adv_data = []
                 org_data = []
-                count = 0.
-                def_success = 0.
-                for text, label in tqdm.tqdm(folds[i], postfix='attacking {}-th fold...'.format(i + 1)):
-                    try:
-                        result = sent_attacker.attacker.simple_attack(text, label)
-                    except Exception as e:
-                        print(e)
-                        continue
-                    new_data = {}
+                org_data.append('{}$LABEL${},{},{}\n'.format(
+                    text,
+                    label,
+                    0,
+                    -100,
+                ))
+                if not os.path.exists(os.path.dirname(data_file) + f'/{dataset}{attack_recipe_name}/'):
+                    os.makedirs(os.path.dirname(data_file) + f'/{dataset}{attack_recipe_name}/')
+                fout = open(os.path.dirname(data_file) + '/{}{}/{}.{}.{}.org'.format(dataset, attack_recipe_name,
+                                                                                     os.path.basename(data_file),
+                                                                                     i + 1, attack_recipe_name),
+                            mode='w',
+                            encoding='utf8')
+                fout.writelines(org_data)
+                fout.close()
 
-                    if result is not None:
-                        new_data['origin_text'] = result.original_result.attacked_text.text
-                        new_data['origin_label'] = result.original_result.ground_truth_output
-
-                        new_data['adv_text'] = result.perturbed_result.attacked_text.text
-                        new_data['perturb_label'] = result.perturbed_result.output
-                        new_data['is_adv'] = 1
-
-
-                    else:
-                        print('No adversarial example for: {}'.format(text))
-                        continue
-                    org_data.append('{}$LABEL${},{},{}\n'.format(
-                        text,
-                        label,
-                        0,
-                        -100,
-                    ))
-                    if new_data['perturb_label'] != new_data['origin_label']:
-                        adv_data.append('{}$LABEL${},{},{}\n'.format(
-                            new_data['adv_text'],
-                            new_data['origin_label'],
-                            new_data['is_adv'],
-                            new_data['perturb_label'],
-                        ))
-                    if not os.path.exists(os.path.dirname(data_file) + f'/{dataset}{attack_recipe_name}/'):
-                        os.makedirs(os.path.dirname(data_file) + f'/{dataset}{attack_recipe_name}/')
-                    fout = open(os.path.dirname(data_file) + '/{}{}/{}.{}.{}.org'.format(dataset, attack_recipe_name,
-                                                                                         os.path.basename(data_file),
-                                                                                         i + 1, attack_recipe_name),
-                                mode='w',
-                                encoding='utf8')
-                    fout.writelines(org_data)
-                    fout.close()
-
-                    fout = open(os.path.dirname(data_file) + '/{}{}/{}.{}.{}.adv'.format(dataset, attack_recipe_name,
-                                                                                         os.path.basename(data_file),
-                                                                                         i + 1, attack_recipe_name),
-                                mode='w',
-                                encoding='utf8')
-                    fout.writelines(adv_data)
-                    fout.close()
+            # folds = [data[i: i + len_per_fold] for i in range(0, len(data), len_per_fold)]
+            # for i in range(len(folds[4:])):
+            #
+            #     adv_data = []
+            #     org_data = []
+            #     count = 0.
+            #     def_success = 0.
+            #     for text, label in tqdm.tqdm(folds[i], postfix='attacking {}-th fold...'.format(i + 1)):
+            #         try:
+            #             result = sent_attacker.attacker.simple_attack(text, label)
+            #         except Exception as e:
+            #             print(e)
+            #             continue
+            #         new_data = {}
+            #
+            #         if result is not None:
+            #             new_data['origin_text'] = result.original_result.attacked_text.text
+            #             new_data['origin_label'] = result.original_result.ground_truth_output
+            #
+            #             new_data['adv_text'] = result.perturbed_result.attacked_text.text
+            #             new_data['perturb_label'] = result.perturbed_result.output
+            #             new_data['is_adv'] = 1
+            #
+            #
+            #         else:
+            #             print('No adversarial example for: {}'.format(text))
+            #             continue
+            #
+            #         if new_data['perturb_label'] != new_data['origin_label']:
+            #             adv_data.append('{}$LABEL${},{},{}\n'.format(
+            #                 new_data['adv_text'],
+            #                 new_data['origin_label'],
+            #                 new_data['is_adv'],
+            #                 new_data['perturb_label'],
+            #             ))
+            #
+            #
+            #         fout = open(os.path.dirname(data_file) + '/{}{}/{}.{}.{}.adv'.format(dataset, attack_recipe_name,
+            #                                                                              os.path.basename(data_file),
+            #                                                                              i + 1, attack_recipe_name),
+            #                     mode='w',
+            #                     encoding='utf8')
+            #         fout.writelines(adv_data)
+            #         fout.close()
 
                 # print('Defense Success Rate: {}'.format(def_success / count))
 
 
 if __name__ == '__main__':
 
-    attack_name = 'pso'
+    # attack_name = 'pso'
     # attack_name = 'BAE'
     # attack_name = 'PWWS'
     # attack_name = 'TextFooler'
 
     # attack_name = 'PSO'
     # attack_name = 'IGA'
+    attack_name = 'GA'
     # attack_name = 'WordBug'
 
     datasets = [
         # 'SST2',
         # 'AGNews10k',
-        'Amazon',
+        # 'Amazon',
+        'IMDB',
     ]
 
     for dataset in datasets:
@@ -236,6 +249,7 @@ if __name__ == '__main__':
             'pso': PSOZang2020,
             'clare': CLARE2020,
             'iga': IGAWang2019,
+            'ga': GeneticAlgorithmAlzantot2018,
             'GA': GeneticAlgorithmAlzantot2018,
             'wordbugger': DeepWordBugGao2018,
         }

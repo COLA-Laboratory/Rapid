@@ -165,9 +165,9 @@ class AugmentCommand(TextAttackCommand):
                     while i < len(row[item]):
                         if row[item][i] == "/":
                             if row[item][i - 1] == '"':
-                                row[item] = row[item][:i] + row[item][i + 1:]
+                                row[item] = row[item][:i] + row[item][i + 1 :]
                             else:
-                                row[item] = row[item][:i] + '"' + row[item][i + 1:]
+                                row[item] = row[item][:i] + '"' + row[item][i + 1 :]
                         i += 1
 
             # Validate input column.

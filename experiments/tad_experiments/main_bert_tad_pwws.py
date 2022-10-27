@@ -27,7 +27,7 @@ from textattack.models.wrappers import HuggingFaceModelWrapper
 import os
 
 import autocuda
-from pyabsa import TADCheckpointManager
+from anonymous_demo import TADCheckpointManager
 
 
 # Quiet TensorFlow.

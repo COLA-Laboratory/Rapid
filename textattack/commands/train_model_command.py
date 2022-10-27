@@ -5,6 +5,7 @@ TrainModelCommand class
 
 """
 
+
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
 from textattack import CommandLineTrainingArgs, Trainer

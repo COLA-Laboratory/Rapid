@@ -4,6 +4,7 @@ GoalFunction Class
 ===========================================================
 """
 
+
 from abc import ABC, abstractmethod
 
 import lru
@@ -33,13 +34,13 @@ class GoalFunction(ReprMixin, ABC):
     """
 
     def __init__(
-            self,
-            model_wrapper,
-            maximizable=False,
-            use_cache=True,
-            query_budget=float("inf"),
-            model_batch_size=32,
-            model_cache_size=2 ** 20,
+        self,
+        model_wrapper,
+        maximizable=False,
+        use_cache=True,
+        query_budget=float("inf"),
+        model_batch_size=32,
+        model_cache_size=2**20,
     ):
         validators.validate_model_goal_function_compatibility(
             self.__class__, model_wrapper.model.__class__
@@ -160,7 +161,7 @@ class GoalFunction(ReprMixin, ABC):
         outputs = []
         i = 0
         while i < len(inputs):
-            batch = inputs[i: i + self.batch_size]
+            batch = inputs[i : i + self.batch_size]
             batch_preds = self.model(batch)
 
             # Some seq-to-seq models will return a single string as a prediction

@@ -4,6 +4,7 @@ Glove Tokenizer
 
 """
 
+
 import json
 import tempfile
 
@@ -20,16 +21,16 @@ class WordLevelTokenizer(hf_tokenizers.implementations.BaseTokenizer):
     """
 
     def __init__(
-            self,
-            word_id_map={},
-            pad_token_id=None,
-            unk_token_id=None,
-            unk_token="[UNK]",
-            sep_token="[SEP]",
-            cls_token="[CLS]",
-            pad_token="[PAD]",
-            lowercase: bool = False,
-            unicode_normalizer=None,
+        self,
+        word_id_map={},
+        pad_token_id=None,
+        unk_token_id=None,
+        unk_token="[UNK]",
+        sep_token="[SEP]",
+        cls_token="[CLS]",
+        pad_token="[PAD]",
+        lowercase: bool = False,
+        unicode_normalizer=None,
     ):
         if pad_token_id:
             word_id_map[pad_token] = pad_token_id
@@ -116,7 +117,7 @@ class GloveTokenizer(WordLevelTokenizer):
     """
 
     def __init__(
-            self, word_id_map={}, pad_token_id=None, unk_token_id=None, max_length=256
+        self, word_id_map={}, pad_token_id=None, unk_token_id=None, max_length=256
     ):
         super().__init__(
             word_id_map=word_id_map,

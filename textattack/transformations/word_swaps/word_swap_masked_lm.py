@@ -3,6 +3,7 @@ Word Swap by BERT-Masked LM.
 -------------------------------
 """
 
+
 import itertools
 import re
 
@@ -49,16 +50,16 @@ class WordSwapMaskedLM(WordSwap):
     """
 
     def __init__(
-            self,
-            method="bae",
-            masked_language_model="bert-base-uncased",
-            tokenizer=None,
-            max_length=512,
-            window_size=float("inf"),
-            max_candidates=50,
-            min_confidence=5e-4,
-            batch_size=16,
-            **kwargs,
+        self,
+        method="bae",
+        masked_language_model="bert-base-uncased",
+        tokenizer=None,
+        max_length=512,
+        window_size=float("inf"),
+        max_candidates=50,
+        min_confidence=5e-4,
+        batch_size=16,
+        **kwargs,
     ):
         super().__init__(**kwargs)
         self.method = method
@@ -121,7 +122,7 @@ class WordSwapMaskedLM(WordSwap):
         # 2-D list where for each index to modify we have a list of replacement words
         replacement_words = []
         while i < len(masked_texts):
-            inputs = self._encode_text(masked_texts[i: i + self.batch_size])
+            inputs = self._encode_text(masked_texts[i : i + self.batch_size])
             ids = inputs["input_ids"].tolist()
             with torch.no_grad():
                 preds = self._language_model(**inputs)[0]
@@ -142,23 +143,23 @@ class WordSwapMaskedLM(WordSwap):
                     _id = _id.item()
                     word = self._lm_tokenizer.convert_ids_to_tokens(_id)
                     if utils.check_if_subword(
-                            word,
-                            self._language_model.config.model_type,
-                            (masked_index == 1),
+                        word,
+                        self._language_model.config.model_type,
+                        (masked_index == 1),
                     ):
                         word = utils.strip_BPE_artifacts(
                             word, self._language_model.config.model_type
                         )
                     if (
-                            mask_token_probs[_id] >= self.min_confidence
-                            and utils.is_one_word(word)
-                            and not utils.check_if_punctuations(word)
+                        mask_token_probs[_id] >= self.min_confidence
+                        and utils.is_one_word(word)
+                        and not utils.check_if_punctuations(word)
                     ):
                         top_words.append(word)
 
                     if (
-                            len(top_words) >= self.max_candidates
-                            or mask_token_probs[_id] < self.min_confidence
+                        len(top_words) >= self.max_candidates
+                        or mask_token_probs[_id] < self.min_confidence
                     ):
                         break
 
@@ -169,11 +170,11 @@ class WordSwapMaskedLM(WordSwap):
         return replacement_words
 
     def _bert_attack_replacement_words(
-            self,
-            current_text,
-            index,
-            id_preds,
-            masked_lm_logits,
+        self,
+        current_text,
+        index,
+        id_preds,
+        masked_lm_logits,
     ):
         """Get replacement words for the word we want to replace using BERT-
         Attack method.
@@ -216,7 +217,7 @@ class WordSwapMaskedLM(WordSwap):
             for id in top_preds:
                 token = self._lm_tokenizer.convert_ids_to_tokens(id)
                 if utils.is_one_word(token) and not utils.check_if_subword(
-                        token, self._language_model.config.model_type, index == 0
+                    token, self._language_model.config.model_type, index == 0
                 ):
                     replacement_words.append(token)
             return replacement_words
@@ -289,9 +290,9 @@ class WordSwapMaskedLM(WordSwap):
                 for word in replacement_words[i]:
                     word = word.strip("Ġ")
                     if (
-                            word != word_at_index
-                            and re.search("[a-zA-Z]", word)
-                            and len(utils.words_from_text(word)) == 1
+                        word != word_at_index
+                        and re.search("[a-zA-Z]", word)
+                        and len(utils.words_from_text(word)) == 1
                     ):
                         transformed_texts.append(
                             current_text.replace_word_at_index(index_to_modify, word)

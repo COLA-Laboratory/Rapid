@@ -9,8 +9,8 @@ import os
 
 import findfile
 
-from pyabsa import TCCheckpointManager, TCDatasetList, TADCheckpointManager
-from pyabsa.functional.dataset.dataset_manager import AdvTCDatasetList, DatasetItem
+from anonymous_demo import TCCheckpointManager, TCDatasetList, TADCheckpointManager
+from anonymous_demo.functional.dataset.dataset_manager import AdvTCDatasetList, DatasetItem
 
 os.environ['PYTHONIOENCODING'] = 'UTF8'
 

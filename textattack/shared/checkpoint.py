@@ -19,7 +19,6 @@ from textattack.attack_results import (
 )
 from textattack.shared import logger, utils
 
-
 # TODO: Consider still keeping the old `Checkpoint` class and allow older checkpoints to be loaded to new TextAttack
 
 
@@ -36,12 +35,12 @@ class AttackCheckpoint:
     """
 
     def __init__(
-            self,
-            attack_args,
-            attack_log_manager,
-            worklist,
-            worklist_candidates,
-            chkpt_time=None,
+        self,
+        attack_args,
+        attack_log_manager,
+        worklist,
+        worklist_candidates,
+        chkpt_time=None,
     ):
         assert isinstance(
             attack_args, textattack.AttackArgs
@@ -70,7 +69,7 @@ class AttackCheckpoint:
         recipe_set = (
             True
             if "recipe" in self.attack_args.__dict__
-               and self.attack_args.__dict__["recipe"]
+            and self.attack_args.__dict__["recipe"]
             else False
         )
         mutually_exclusive_args = ["search", "transformation", "constraints", "recipe"]
@@ -238,5 +237,5 @@ class AttackCheckpoint:
             result.original_text for result in self.attack_log_manager.results
         }
         assert (
-                len(results_set) == self.results_count
+            len(results_set) == self.results_count
         ), "Duplicate `AttackResults` found."

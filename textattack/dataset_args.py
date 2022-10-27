@@ -117,7 +117,16 @@ HUGGINGFACE_DATASET_BY_MODEL = {
         5.0,
     ),
     "xlnet-base-cased-wnli": ("glue", "wnli", "validation"),
+
+    # PyABSA models
+    "tadbert-ag-news": ("ag_news", None, "test"),
+    "tadbert-imdb": ("imdb", None, "test"),
+    "tadbert-sst2": ("glue", "sst2", "validation"),
+    "taddeberta-ag-news": ("ag_news", None, "test"),
+    "taddeberta-imdb": ("imdb", None, "test"),
+    "taddeberta-sst2": ("glue", "sst2", "validation"),
 }
+
 TEXTATTACK_DATASET_BY_MODEL = {
     #
     # LSTMs
@@ -158,7 +167,7 @@ TEXTATTACK_DATASET_BY_MODEL = {
     #
     "t5-summarization": ("gigaword", None, "test"),
     #
-    # PyABSA TAD-BERT
+    # PyABSA defender
     #
     "tadbert-ag-news": ("ag_news", None, "test"),
     "taddeberta-ag-news": ("ag_news", None, "test"),
@@ -278,7 +287,7 @@ class DatasetArgs:
             if args.dataset_split:
                 if len(dataset_args) > 1:
                     dataset_args = (
-                            dataset_args[:1] + (args.dataset_split,) + dataset_args[2:]
+                        dataset_args[:2] + (args.dataset_split,) + dataset_args[3:]
                     )
                     dataset = textattack.datasets.HuggingFaceDataset(
                         *dataset_args, shuffle=False

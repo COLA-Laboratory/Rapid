@@ -12,9 +12,9 @@ import findfile
 
 # Transfer Experiments and Multitask Experiments
 
-from pyabsa import TCTrainer, TADConfigManager, TCDatasetList, BERTTADModelList, TADTrainer, TCConfigManager, \
+from anonymous_demo import TCTrainer, TADConfigManager, TCDatasetList, BERTTADModelList, TADTrainer, TCConfigManager, \
     BERTTCModelList, GloVeTCModelList
-from pyabsa.functional.dataset.dataset_manager import AdvTCDatasetList, DatasetItem
+from anonymous_demo.functional.dataset.dataset_manager import AdvTCDatasetList, DatasetItem
 
 warnings.filterwarnings('ignore')
 seeds = [random.randint(1, 10000) for _ in range(1)]

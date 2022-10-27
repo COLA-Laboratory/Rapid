@@ -15,7 +15,7 @@ import os
 
 import numpy as np
 import pandas
-from pyabsa.functional.dataset import detect_dataset
+from anonymous_demo.functional.dataset import detect_dataset
 from transformers import AutoTokenizer, TFAutoModelForSequenceClassification, pipeline, \
     AutoModelForSequenceClassification
 
@@ -30,7 +30,7 @@ from textattack.models.wrappers import ModelWrapper, HuggingFaceModelWrapper
 import os
 
 import autocuda
-from pyabsa import TCConfigManager, GloVeTCModelList, TCDatasetList, BERTTCModelList, TADCheckpointManager, \
+from anonymous_demo import TCConfigManager, GloVeTCModelList, TCDatasetList, BERTTCModelList, TADCheckpointManager, \
     TCCheckpointManager
 
 if "TF_CPP_MIN_LOG_LEVEL" not in os.environ:
@@ -115,7 +115,7 @@ def generate_adversarial_example(dataset, attack_recipe, tad_classifier):
                                                      'synthesized'] + filter_key_words)
 
     for dat_type in [
-        'train',
+        # 'train',
         'valid',
         'test'
     ]:
@@ -126,7 +126,7 @@ def generate_adversarial_example(dataset, attack_recipe, tad_classifier):
 
             with open(data_file, mode='r', encoding='utf8') as fin:
                 lines = fin.readlines()
-                for line in lines:
+                for line in lines[:500]:
                     text, label = line.split('$LABEL$')
                     text = text.strip()
                     label = int(label.strip())
@@ -204,7 +204,8 @@ if __name__ == '__main__':
     datasets = [
         # 'SST2',
         # 'AGNews10k',
-        'Amazon',
+        # 'Amazon',
+        'imdb',
     ]
 
     for dataset in datasets:

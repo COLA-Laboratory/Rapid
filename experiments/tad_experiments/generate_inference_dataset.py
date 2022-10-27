@@ -6,7 +6,7 @@
 # Copyright (C) 2021. All Rights Reserved.
 import os
 
-from pyabsa.functional.dataset import detect_dataset
+from anonymous_demo.functional.dataset import detect_dataset
 
 datasets = detect_dataset(os.getcwd(), task='text_defense')
 

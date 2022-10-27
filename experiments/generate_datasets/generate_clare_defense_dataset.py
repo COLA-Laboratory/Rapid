@@ -15,7 +15,7 @@ import os
 
 import numpy as np
 import pandas
-from pyabsa.functional.dataset import detect_dataset
+from anonymous_demo.functional.dataset import detect_dataset
 from transformers import AutoTokenizer, TFAutoModelForSequenceClassification, pipeline, \
     AutoModelForSequenceClassification
 
@@ -37,7 +37,7 @@ from textattack.models.wrappers import ModelWrapper, HuggingFaceModelWrapper
 import os
 
 import autocuda
-from pyabsa import TCConfigManager, GloVeTCModelList, TCDatasetList, BERTTCModelList, TADCheckpointManager, \
+from anonymous_demo import TCConfigManager, GloVeTCModelList, TCDatasetList, BERTTCModelList, TADCheckpointManager, \
     TCCheckpointManager
 
 if "TF_CPP_MIN_LOG_LEVEL" not in os.environ:

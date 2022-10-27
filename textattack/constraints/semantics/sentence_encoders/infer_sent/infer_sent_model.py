@@ -7,6 +7,7 @@ https://arxiv.org/pdf/1705.02364.pdf.
 
 """
 
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 #
@@ -250,12 +251,12 @@ class InferSentModel(nn.Module):
 
         embeddings = []
         for stidx in range(0, len(sentences), bsize):
-            batch = self.get_batch(sentences[stidx: stidx + bsize])
+            batch = self.get_batch(sentences[stidx : stidx + bsize])
             if self.is_cuda():
                 batch = batch.to(textattack.shared.utils.device)
             with torch.no_grad():
                 batch = (
-                    self.forward((batch, lengths[stidx: stidx + bsize]))
+                    self.forward((batch, lengths[stidx : stidx + bsize]))
                     .data.cpu()
                     .numpy()
                 )

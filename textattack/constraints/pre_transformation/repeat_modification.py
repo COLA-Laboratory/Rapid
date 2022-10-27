@@ -16,8 +16,8 @@ class RepeatModification(PreTransformationConstraint):
         deleted."""
         try:
             return (
-                    set(range(len(current_text.words)))
-                    - current_text.attack_attrs["modified_indices"]
+                set(range(len(current_text.words)))
+                - current_text.attack_attrs["modified_indices"]
             )
         except KeyError:
             raise KeyError(

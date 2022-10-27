@@ -30,14 +30,14 @@ class ImprovedGeneticAlgorithm(GeneticAlgorithm):
     """
 
     def __init__(
-            self,
-            pop_size=60,
-            max_iters=20,
-            temp=0.3,
-            give_up_if_no_improvement=False,
-            post_crossover_check=True,
-            max_crossover_retries=20,
-            max_replace_times_per_index=5,
+        self,
+        pop_size=60,
+        max_iters=20,
+        temp=0.3,
+        give_up_if_no_improvement=False,
+        post_crossover_check=True,
+        max_crossover_retries=20,
+        max_replace_times_per_index=5,
     ):
         super().__init__(
             pop_size=pop_size,

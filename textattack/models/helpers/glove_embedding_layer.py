@@ -24,13 +24,13 @@ class EmbeddingLayer(nn.Module):
     """
 
     def __init__(
-            self,
-            n_d=100,
-            embedding_matrix=None,
-            word_list=None,
-            oov="<oov>",
-            pad="<pad>",
-            normalize=True,
+        self,
+        n_d=100,
+        embedding_matrix=None,
+        word_list=None,
+        oov="<oov>",
+        pad="<pad>",
+        normalize=True,
     ):
         super(EmbeddingLayer, self).__init__()
         word2id = {}

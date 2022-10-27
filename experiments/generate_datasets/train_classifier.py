@@ -32,22 +32,29 @@ classification_config_english.seed = random.randint(1, 10000)
 classification_config_english.l2reg = 1e-8
 classification_config_english.cross_validate_fold = -1
 
-dataset = ClassificationDatasetList.SST2
-text_classifier = TextClassificationTrainer(config=classification_config_english,
-                                            dataset=dataset,
-                                            checkpoint_save_mode=1,
-                                            auto_device=True
-                                            ).load_trained_model()
-dataset = DatasetItem('Amazon', 'Amazon')
+dataset = DatasetItem('IMDB', 'IMDB')
 text_classifier = TextClassificationTrainer(config=classification_config_english,
                                             dataset=dataset,
                                             checkpoint_save_mode=1,
                                             auto_device=True
                                             ).load_trained_model()
 
-dataset = ClassificationDatasetList.AGNews10K
-text_classifier = TextClassificationTrainer(config=classification_config_english,
-                                            dataset=dataset,
-                                            checkpoint_save_mode=1,
-                                            auto_device=True
-                                            ).load_trained_model()
+# dataset = ClassificationDatasetList.SST2
+# text_classifier = TextClassificationTrainer(config=classification_config_english,
+#                                             dataset=dataset,
+#                                             checkpoint_save_mode=1,
+#                                             auto_device=True
+#                                             ).load_trained_model()
+# dataset = DatasetItem('Amazon', 'Amazon')
+# text_classifier = TextClassificationTrainer(config=classification_config_english,
+#                                             dataset=dataset,
+#                                             checkpoint_save_mode=1,
+#                                             auto_device=True
+#                                             ).load_trained_model()
+#
+# dataset = ClassificationDatasetList.AGNews10K
+# text_classifier = TextClassificationTrainer(config=classification_config_english,
+#                                             dataset=dataset,
+#                                             checkpoint_save_mode=1,
+#                                             auto_device=True
+#                                             ).load_trained_model()

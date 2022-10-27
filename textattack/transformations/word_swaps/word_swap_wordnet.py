@@ -3,6 +3,7 @@ Word Swap by swapping synonyms in WordNet
 ------------------------------------------------
 """
 
+
 import nltk
 from nltk.corpus import wordnet
 
@@ -25,7 +26,7 @@ class WordSwapWordNet(WordSwap):
     """
 
     def __init__(self, language="eng"):
-        nltk.download("omw-1.4")
+        # nltk.download("omw-1.4")
         if language not in wordnet.langs():
             raise ValueError(f"Language {language} not one of {wordnet.langs()}")
         self.language = language
@@ -37,9 +38,9 @@ class WordSwapWordNet(WordSwap):
         for syn in wordnet.synsets(word, lang=self.language):
             for syn_word in syn.lemma_names(lang=self.language):
                 if (
-                        (syn_word != word)
-                        and ("_" not in syn_word)
-                        and (textattack.shared.utils.is_one_word(syn_word))
+                    (syn_word != word)
+                    and ("_" not in syn_word)
+                    and (textattack.shared.utils.is_one_word(syn_word))
                 ):
                     # WordNet can suggest phrases that are joined by '_' but we ignore phrases.
                     synonyms.add(syn_word)

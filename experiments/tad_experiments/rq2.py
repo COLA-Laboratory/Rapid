@@ -13,7 +13,6 @@ import findfile
 import numpy as np
 import torch
 import tqdm
-from decorator import contextmanager
 from metric_visualizer import MetricVisualizer
 from termcolor import colored
 
@@ -21,44 +20,18 @@ from pyabsa import TCCheckpointManager, TCDatasetList, TADCheckpointManager
 from pyabsa.functional.dataset.dataset_manager import AdvTCDatasetList, DatasetItem, detect_dataset
 from textattack import Attacker
 from textattack.attack_recipes import BAEGarg2019, PWWSRen2019, TextFoolerJin2019, PSOZang2020, IGAWang2019, \
-    GeneticAlgorithmAlzantot2018, DeepWordBugGao2018, CLARE2020
+    GeneticAlgorithmAlzantot2018, DeepWordBugGao2018, CLARE2020, HotFlipEbrahimi2017, BERTAttackLi2020
 from textattack.attack_results import SuccessfulAttackResult
 from textattack.datasets import Dataset
 from textattack.models.wrappers import HuggingFaceModelWrapper
 from textattack.attack_args import AttackArgs
+# from func_timeout import func_set_timeout
+# import func_timeout
 
-
-@contextmanager
-def timeout(duration: float):
-    """
-    A context manager that raises a `TimeoutError` after a specified time.
-
-    Parameters
-    ----------
-    duration: float,
-        the time duration in seconds,
-        should be non-negative,
-        0 for no timeout
-
-    References
-    ----------
-    https://stackoverflow.com/questions/492519/timeout-on-a-function-call
-
-    """
-    if np.isinf(duration):
-        duration = 0
-    elif duration < 0:
-        raise ValueError("duration must be non-negative")
-    elif duration > 0:  # granularity is 1 second, so round up
-        duration = max(1, int(duration))
-
-    def timeout_handler(signum, frame):
-        raise TimeoutError(f"block timedout after {duration} seconds")
-
-    signal.signal(signal.SIGALRM, timeout_handler)
-    signal.alarm(duration)
-    yield
-    signal.alarm(0)
+import tensorflow as tf
+gpus = tf.config.experimental.list_physical_devices(device_type='GPU')
+tf.config.experimental.set_virtual_device_configuration(gpus[0],
+[tf.config.experimental.VirtualDeviceConfiguration(memory_limit=5500)])
 
 
 class PyABSAModelWrapper(HuggingFaceModelWrapper):
@@ -113,6 +86,8 @@ def transfer_adversarial_attack_detection_and_defense(infer_files, tad_classifie
             for line in lines:
                 text, label = line.split('$LABEL$')
                 text = text.strip()
+                if len(text.split()) > 100:
+                    continue
                 label = int(label.strip())
                 data.append((text, label))
 
@@ -127,10 +102,9 @@ def transfer_adversarial_attack_detection_and_defense(infer_files, tad_classifie
             try:
                 result = attacker.attacker.simple_attack(text, label)
             except Exception as e:
-                # del attacker
-                torch.cuda.empty_cache()
-                # attacker = SentAttacker(source_classifier, attack_recipes[target_attacker.lower()])
                 print(e)
+                # del attacker
+                # attacker = SentAttacker(tad_classifier)
                 continue
             if isinstance(result, SuccessfulAttackResult):
                 infer_res = tad_classifier.infer(
@@ -139,6 +113,7 @@ def transfer_adversarial_attack_detection_and_defense(infer_files, tad_classifie
                     print_result=False,
                     defense='pwws'
                 )
+
                 def_num += 1
                 if infer_res['label'] == str(result.original_result.ground_truth_output):
                     def_acc_count += 1
@@ -159,6 +134,8 @@ def transfer_adversarial_attack_detection_and_defense(infer_files, tad_classifie
                 round(def_acc_count / def_num * 100, 2),
                 round(acc_count / all_num * 100, 2)), 'green')
             it.update()
+            print(colored('det_acc_count: {}|def_acc_count: {}|acc_count: {}'.format(det_acc_count, def_acc_count, acc_count), 'red'))
+
         mv.add_metric('Detection Accuracy', det_acc_count / def_num * 100)
         mv.add_metric('Defense Accuracy', def_acc_count / def_num * 100)
         mv.add_metric('Restored Accuracy', acc_count / all_num * 100)
@@ -172,15 +149,18 @@ if __name__ == '__main__':
         'textfooler': TextFoolerJin2019,
         'pso': PSOZang2020,
         'iga': IGAWang2019,
+        'hotflip': HotFlipEbrahimi2017,
         'ga': GeneticAlgorithmAlzantot2018,
         'wordbugger': DeepWordBugGao2018,
         'clare': CLARE2020,
+        'bertattack': BERTAttackLi2020,
 
     }
     for dataset in [
-        'SST2',
-        'Amazon',
-        'AGNews10K',
+        # 'SST2',
+        # 'Amazon',
+        # 'AGNews10K',
+        'IMDB',
     ]:
         for source_attacker in [
             # 'BAE',
@@ -189,16 +169,22 @@ if __name__ == '__main__':
             'Multi-Attack',
         ]:
             for target_attacker in [
-                # 'clare',
+                # 'textfooler',
                 # 'PSO',
-                'GA',
                 # 'wordbugger',
+                # 'clare',
+                # 'IGA',
+                'GA',
+                # 'bertattack',
             ]:
                 print(colored(
                     f'\n------------------- {dataset}{source_attacker} -> {dataset}{target_attacker} (DeBERTa) -------------------\n',
                     'green'))
-                source_classifier = TADCheckpointManager.get_tad_text_classifier(checkpoint=f'TAD-{dataset}',
-                                                                                 auto_device=True,
+
+                source_classifier = TADCheckpointManager.get_tad_text_classifier(checkpoint=f'TAD-BERT-{dataset}',
+                # source_classifier = TADCheckpointManager.get_tad_text_classifier(checkpoint=f'TAD-{dataset}',
+                # source_classifier = TADCheckpointManager.get_tad_text_classifier(checkpoint=f'TAD-BERT-SST2',
+                                                                                 auto_device='cuda:1',
                                                                                  # Use CUDA if available
                                                                                  )
 

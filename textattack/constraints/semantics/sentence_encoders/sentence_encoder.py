@@ -29,12 +29,12 @@ class SentenceEncoder(Constraint, ABC):
     """
 
     def __init__(
-            self,
-            threshold=0.8,
-            metric="cosine",
-            compare_against_original=True,
-            window_size=None,
-            skip_text_shorter_than_window=False,
+        self,
+        threshold=0.8,
+        metric="cosine",
+        compare_against_original=True,
+        window_size=None,
+        skip_text_shorter_than_window=False,
     ):
         super().__init__(compare_against_original)
         self.metric = metric
@@ -153,7 +153,7 @@ class SentenceEncoder(Constraint, ABC):
             if not isinstance(embeddings, torch.Tensor):
                 embeddings = torch.tensor(embeddings)
             starting_embeddings = embeddings[: len(transformed_texts)]
-            transformed_embeddings = embeddings[len(transformed_texts):]
+            transformed_embeddings = embeddings[len(transformed_texts) :]
         else:
             starting_raw_text = starting_text.text
             transformed_raw_texts = [t.text for t in transformed_texts]
@@ -182,8 +182,8 @@ class SentenceEncoder(Constraint, ABC):
             # Optionally ignore similarity score for sentences shorter than the
             # window size.
             if (
-                    self.skip_text_shorter_than_window
-                    and len(transformed_text.words) < self.window_size
+                self.skip_text_shorter_than_window
+                and len(transformed_text.words) < self.window_size
             ):
                 scores[i] = 1
             transformed_text.attack_attrs["similarity_score"] = scores[i].item()
@@ -192,8 +192,8 @@ class SentenceEncoder(Constraint, ABC):
 
     def _check_constraint(self, transformed_text, reference_text):
         if (
-                self.skip_text_shorter_than_window
-                and len(transformed_text.words) < self.window_size
+            self.skip_text_shorter_than_window
+            and len(transformed_text.words) < self.window_size
         ):
             score = 1
         else:
@@ -204,11 +204,11 @@ class SentenceEncoder(Constraint, ABC):
 
     def extra_repr_keys(self):
         return [
-                   "metric",
-                   "threshold",
-                   "window_size",
-                   "skip_text_shorter_than_window",
-               ] + super().extra_repr_keys()
+            "metric",
+            "threshold",
+            "window_size",
+            "skip_text_shorter_than_window",
+        ] + super().extra_repr_keys()
 
 
 def get_angular_sim(emb1, emb2):

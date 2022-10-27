@@ -38,12 +38,12 @@ class BERTScore(Constraint):
     SCORE_TYPE2IDX = {"precision": 0, "recall": 1, "f1": 2}
 
     def __init__(
-            self,
-            min_bert_score,
-            model_name="bert-base-uncased",
-            num_layers=None,
-            score_type="f1",
-            compare_against_original=True,
+        self,
+        min_bert_score,
+        model_name="bert-base-uncased",
+        num_layers=None,
+        score_type="f1",
+        compare_against_original=True,
     ):
         super().__init__(compare_against_original)
         if not isinstance(min_bert_score, float):

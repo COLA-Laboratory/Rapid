@@ -40,7 +40,7 @@ class ChineseHomophoneCharacterSwap(WordSwap):
                                 if repl_character is None:
                                     break
                                 candidate_word = (
-                                        word[:i] + repl_character + word[i + 1:]
+                                    word[:i] + repl_character + word[i + 1 :]
                                 )
                                 candidate_words.append(candidate_word)
             else:

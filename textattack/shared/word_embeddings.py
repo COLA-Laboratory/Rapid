@@ -232,7 +232,7 @@ class WordEmbedding(AbstractWordEmbedding):
         if isinstance(index, str):
             index = self._word2index[index]
         if self.nn_matrix is not None:
-            nn = self.nn_matrix[index][1: (topn + 1)]
+            nn = self.nn_matrix[index][1 : (topn + 1)]
         else:
             try:
                 nn = self._nn_cache[index]
@@ -252,11 +252,11 @@ class WordEmbedding(AbstractWordEmbedding):
         "Counter-fitting Word Vectors to Linguistic Constraints" (Mrkšić et
         al., 2016)"""
         if (
-                "textattack_counterfitted_GLOVE_embedding" in utils.GLOBAL_OBJECTS
-                and isinstance(
-            utils.GLOBAL_OBJECTS["textattack_counterfitted_GLOVE_embedding"],
-            WordEmbedding,
-        )
+            "textattack_counterfitted_GLOVE_embedding" in utils.GLOBAL_OBJECTS
+            and isinstance(
+                utils.GLOBAL_OBJECTS["textattack_counterfitted_GLOVE_embedding"],
+                WordEmbedding,
+            )
         ):
             # avoid recreating same embedding (same memory) and instead share across different components
             return utils.GLOBAL_OBJECTS["textattack_counterfitted_GLOVE_embedding"]

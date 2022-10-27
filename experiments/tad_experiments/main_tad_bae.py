@@ -23,7 +23,7 @@ from textattack.models.wrappers import HuggingFaceModelWrapper
 import os
 
 import autocuda
-from pyabsa import TADCheckpointManager
+from anonymous_demo import TADCheckpointManager
 
 
 # Quiet TensorFlow.
@@ -150,7 +150,7 @@ def adversarial_attack_detection_and_defense(dataset, attack_recipe):
             acc_count = 0.
             def_acc_count = 0.
             det_acc_count = 0.
-            it = tqdm.tqdm(data, postfix='testing ...')
+            it = tqdm.tqdm(data[:300], postfix='testing ...')
             for text, label in it:
                 result = sent_attacker.attacker.simple_attack(text, label)
                 if isinstance(result, SuccessfulAttackResult):
@@ -158,15 +158,15 @@ def adversarial_attack_detection_and_defense(dataset, attack_recipe):
                         result.perturbed_result.attacked_text.text + '!ref!{},{},{}'.format(
                             result.original_result.ground_truth_output, 1, result.perturbed_result.output),
                         print_result=False,
-                        # defense='pwws'
+                        defense='pwws'
                     )
                     def_num += 1
-                    if infer_res['pred_adv_tr_label'] == str(result.original_result.ground_truth_output):
-                        def_acc_count += 1
-                    infer_res['label'] = infer_res['pred_adv_tr_label']
-
-                    # if infer_res['label'] == str(result.original_result.ground_truth_output):
+                    # if infer_res['pred_adv_tr_label'] == str(result.original_result.ground_truth_output):
                     #     def_acc_count += 1
+                    # infer_res['label'] = infer_res['pred_adv_tr_label']
+
+                    if infer_res['label'] == str(result.original_result.ground_truth_output):
+                        def_acc_count += 1
                     if infer_res['is_adv_label'] == '1':
                         det_acc_count += 1
                     pass
@@ -195,21 +195,21 @@ if __name__ == '__main__':
     # attack_name = 'PWWS'
     # attack_name = 'TextFooler'
 
-    # attack_name = 'PSO'
+    # attack_name = 'PSO'Z
     # attack_name = 'IGA'
     # attack_name = 'WordBug'
     datasets = [
-        # 'sst2',
-        # 'Amazon',
-        'agnews10k',
+        # 'SST2',
+        'Amazon',
+        # 'agnews10k',
     ]
 
     for dataset in datasets:
         tad_classifier = TADCheckpointManager.get_tad_text_classifier(
-            f'TAD-{dataset}{attack_name}',
+            # f'TAD-{dataset}{attack_name}',
             # f'TAD-{dataset}',
             # f'tadbert_{dataset}{attack_name}',
-            # f'tadbert_{dataset}',
+            f'tadbert_{dataset}',
             # auto_device=autocuda.auto_cuda()
             auto_device='cuda:0'
         )

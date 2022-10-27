@@ -14,15 +14,16 @@ class TextToTextGoalFunctionResult(GoalFunctionResult):
     """Represents the result of a text-to-text goal function."""
 
     def __init__(
-            self,
-            attacked_text,
-            raw_output,
-            output,
-            goal_status,
-            score,
-            num_queries,
-            ground_truth_output,
+        self,
+        attacked_text,
+        raw_output,
+        output,
+        goal_status,
+        score,
+        num_queries,
+        ground_truth_output,
     ):
+
         super().__init__(
             attacked_text,
             raw_output,

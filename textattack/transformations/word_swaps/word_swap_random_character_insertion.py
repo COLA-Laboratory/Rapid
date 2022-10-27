@@ -27,7 +27,7 @@ class WordSwapRandomCharacterInsertion(WordSwap):
     """
 
     def __init__(
-            self, random_one=True, skip_first_char=False, skip_last_char=False, **kwargs
+        self, random_one=True, skip_first_char=False, skip_last_char=False, **kwargs
     ):
         super().__init__(**kwargs)
         self.random_one = random_one

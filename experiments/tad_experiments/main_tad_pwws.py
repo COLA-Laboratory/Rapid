@@ -22,9 +22,11 @@ from textattack.models.wrappers import HuggingFaceModelWrapper
 
 import os
 
-import autocuda
-from pyabsa import TADCheckpointManager
-
+from anonymous_demo import TADCheckpointManager
+import tensorflow as tf
+gpus = tf.config.experimental.list_physical_devices('GPU')
+# 将对应GPU设置为内存自增长
+tf.config.experimental.set_memory_growth(gpus[0], True)
 
 # Quiet TensorFlow.
 def get_ensembled_tad_results(results):
@@ -150,7 +152,7 @@ def generate_adversarial_example(dataset, attack_recipe):
             acc_count = 0.
             def_acc_count = 0.
             det_acc_count = 0.
-            it = tqdm.tqdm(data, postfix='testing ...')
+            it = tqdm.tqdm(data[:300], postfix='testing ...')
             for text, label in it:
                 result = sent_attacker.attacker.simple_attack(text, label)
                 if isinstance(result, SuccessfulAttackResult):
@@ -158,15 +160,15 @@ def generate_adversarial_example(dataset, attack_recipe):
                         result.perturbed_result.attacked_text.text + '!ref!{},{},{}'.format(
                             result.original_result.ground_truth_output, 1, result.perturbed_result.output),
                         print_result=False,
-                        # defense='pwws'
+                        defense='pwws'
                     )
                     def_num += 1
-                    if infer_res['pred_adv_tr_label'] == str(result.original_result.ground_truth_output):
-                        def_acc_count += 1
-                    infer_res['label'] = infer_res['pred_adv_tr_label']
-
-                    # if infer_res['label'] == str(result.original_result.ground_truth_output):
+                    # if infer_res['pred_adv_tr_label'] == str(result.original_result.ground_truth_output):
                     #     def_acc_count += 1
+                    # infer_res['label'] = infer_res['pred_adv_tr_label']
+
+                    if infer_res['label'] == str(result.original_result.ground_truth_output):
+                        def_acc_count += 1
                     if infer_res['is_adv_label'] == '1':
                         det_acc_count += 1
                 else:
@@ -198,19 +200,19 @@ if __name__ == '__main__':
     # attack_name = 'WordBug'
 
     datasets = [
-        # 'sst2',
+        # 'SST2',
         # 'Amazon',
         'agnews10k',
     ]
 
     for dataset in datasets:
         tad_classifier = TADCheckpointManager.get_tad_text_classifier(
-            f'TAD-{dataset}{attack_name}',
+            # f'TAD-{dataset}{attack_name}',
             # f'TAD-{dataset}',
-            # f'tadbert_{dataset}',
+            f'tadbert_{dataset}',
             # f'tadbert_{dataset}{attack_name}',
             # auto_device=autocuda.auto_cuda()
-            auto_device='cuda:1'
+            auto_device='cuda:0'
         )
         attack_recipes = {
             'bae': BAEGarg2019,
@@ -226,3 +228,4 @@ if __name__ == '__main__':
             generate_adversarial_example(dataset, attack_recipe=attack_recipes[attack_name.lower()])
         mv.summary()
         mv.dump()
+

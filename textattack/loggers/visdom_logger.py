@@ -3,6 +3,7 @@ Attack Logs to Visdom
 ========================
 """
 
+
 import socket
 
 from textattack.shared.utils import LazyLoader, html_table_from_rows

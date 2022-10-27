@@ -4,6 +4,7 @@ Determine successful in untargeted Classification
 ----------------------------------------------------
 """
 
+
 from .classification_goal_function import ClassificationGoalFunction
 
 
@@ -25,7 +26,7 @@ class UntargetedClassification(ClassificationGoalFunction):
         if self.target_max_score:
             return model_output[self.ground_truth_output] < self.target_max_score
         elif (model_output.numel() == 1) and isinstance(
-                self.ground_truth_output, float
+            self.ground_truth_output, float
         ):
             return abs(self.ground_truth_output - model_output.item()) >= 0.5
         else:

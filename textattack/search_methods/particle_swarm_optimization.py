@@ -39,7 +39,7 @@ class ParticleSwarmOptimization(PopulationBasedSearch):
     """
 
     def __init__(
-            self, pop_size=60, max_iters=20, post_turn_check=True, max_turn_retries=20
+        self, pop_size=60, max_iters=20, post_turn_check=True, max_turn_retries=20
     ):
         self.max_iters = max_iters
         self.pop_size = pop_size
@@ -112,14 +112,12 @@ class ParticleSwarmOptimization(PopulationBasedSearch):
             )
             indices_to_replace = set(indices_to_replace)
             new_text.attack_attrs["modified_indices"] = (
-                                                                source_text.attacked_text.attack_attrs[
-                                                                    "modified_indices"]
-                                                                - indices_to_replace
-                                                        ) | (
-                                                                target_text.attacked_text.attack_attrs[
-                                                                    "modified_indices"]
-                                                                & indices_to_replace
-                                                        )
+                source_text.attacked_text.attack_attrs["modified_indices"]
+                - indices_to_replace
+            ) | (
+                target_text.attacked_text.attack_attrs["modified_indices"]
+                & indices_to_replace
+            )
             if "last_transformation" in source_text.attacked_text.attack_attrs:
                 new_text.attack_attrs[
                     "last_transformation"
@@ -228,8 +226,8 @@ class ParticleSwarmOptimization(PopulationBasedSearch):
 
         global_elite = max(population, key=lambda x: x.score)
         if (
-                self._search_over
-                or global_elite.result.goal_status == GoalFunctionResultStatus.SUCCEEDED
+            self._search_over
+            or global_elite.result.goal_status == GoalFunctionResultStatus.SUCCEEDED
         ):
             return global_elite.result
 
@@ -238,7 +236,7 @@ class ParticleSwarmOptimization(PopulationBasedSearch):
         # start iterations
         for i in range(self.max_iters):
             omega = (self.omega_1 - self.omega_2) * (
-                    self.max_iters - i
+                self.max_iters - i
             ) / self.max_iters + self.omega_2
             C1 = self.c1_origin - i / self.max_iters * (self.c1_origin - self.c2_origin)
             C2 = self.c2_origin + i / self.max_iters * (self.c1_origin - self.c2_origin)
@@ -255,8 +253,8 @@ class ParticleSwarmOptimization(PopulationBasedSearch):
 
                 for d in range(len(pop_mem_words)):
                     velocities[k][d] = omega * velocities[k][d] + (1 - omega) * (
-                            self._equal(pop_mem_words[d], local_elite_words[d])
-                            + self._equal(pop_mem_words[d], global_elite.words[d])
+                        self._equal(pop_mem_words[d], local_elite_words[d])
+                        + self._equal(pop_mem_words[d], global_elite.words[d])
                     )
                 turn_prob = utils.sigmoid(velocities[k])
 
@@ -290,8 +288,8 @@ class ParticleSwarmOptimization(PopulationBasedSearch):
 
             top_member = max(population, key=lambda x: x.score)
             if (
-                    self._search_over
-                    or top_member.result.goal_status == GoalFunctionResultStatus.SUCCEEDED
+                self._search_over
+                or top_member.result.goal_status == GoalFunctionResultStatus.SUCCEEDED
             ):
                 return top_member.result
 
@@ -311,8 +309,8 @@ class ParticleSwarmOptimization(PopulationBasedSearch):
             # Check if there is any successful attack in the current population
             top_member = max(population, key=lambda x: x.score)
             if (
-                    self._search_over
-                    or top_member.result.goal_status == GoalFunctionResultStatus.SUCCEEDED
+                self._search_over
+                or top_member.result.goal_status == GoalFunctionResultStatus.SUCCEEDED
             ):
                 return top_member.result
 

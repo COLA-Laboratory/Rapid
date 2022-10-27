@@ -15,7 +15,7 @@ import traceback
 
 import torch
 import tqdm
-
+import time
 import textattack
 from textattack.attack_results import (
     FailedAttackResult,
@@ -27,7 +27,6 @@ from textattack.shared.utils import logger
 
 from .attack import Attack
 from .attack_args import AttackArgs
-
 
 def timeout(max_timeout):
     """Timeout decorator, parameter in seconds."""
@@ -46,7 +45,6 @@ def timeout(max_timeout):
         return func_wrapper
 
     return timeout_decorator
-
 
 class Attacker:
     """Class for running attacks on a dataset with specified parameters. This
@@ -113,7 +111,7 @@ class Attacker:
     def _get_worklist(self, start, end, num_examples, shuffle):
         if end - start < num_examples:
             logger.warn(
-                f"Attempting to attack {num_examples} samples when only {end - start} are available."
+                f"Attempting to attack {num_examples} samples when only {end-start} are available."
             )
         candidates = list(range(start, end))
         if shuffle:
@@ -123,7 +121,7 @@ class Attacker:
         assert (len(worklist) + len(candidates)) == (end - start)
         return worklist, candidates
 
-    @timeout(300)
+    @timeout(500)
     def simple_attack(self, text, label):
         """Internal method that carries out attack.
 
@@ -219,10 +217,10 @@ class Attacker:
             except Exception as e:
                 raise e
             if (
-                    isinstance(result, SkippedAttackResult) and self.attack_args.attack_n
+                isinstance(result, SkippedAttackResult) and self.attack_args.attack_n
             ) or (
-                    not isinstance(result, SuccessfulAttackResult)
-                    and self.attack_args.num_successful_examples
+                not isinstance(result, SuccessfulAttackResult)
+                and self.attack_args.num_successful_examples
             ):
                 if worklist_candidates:
                     next_sample = worklist_candidates.popleft()
@@ -250,10 +248,10 @@ class Attacker:
             )
 
             if (
-                    self.attack_args.checkpoint_interval
-                    and len(self.attack_log_manager.results)
-                    % self.attack_args.checkpoint_interval
-                    == 0
+                self.attack_args.checkpoint_interval
+                and len(self.attack_log_manager.results)
+                % self.attack_args.checkpoint_interval
+                == 0
             ):
                 new_checkpoint = textattack.shared.AttackCheckpoint(
                     self.attack_args,
@@ -385,10 +383,10 @@ class Attacker:
                 worker_pool.join()
                 return
             elif (
-                    isinstance(result, SkippedAttackResult) and self.attack_args.attack_n
+                isinstance(result, SkippedAttackResult) and self.attack_args.attack_n
             ) or (
-                    not isinstance(result, SuccessfulAttackResult)
-                    and self.attack_args.num_successful_examples
+                not isinstance(result, SuccessfulAttackResult)
+                and self.attack_args.num_successful_examples
             ):
                 if worklist_candidates:
                     next_sample = worklist_candidates.popleft()
@@ -419,10 +417,10 @@ class Attacker:
             )
 
             if (
-                    self.attack_args.checkpoint_interval
-                    and len(self.attack_log_manager.results)
-                    % self.attack_args.checkpoint_interval
-                    == 0
+                self.attack_args.checkpoint_interval
+                and len(self.attack_log_manager.results)
+                % self.attack_args.checkpoint_interval
+                == 0
             ):
                 new_checkpoint = textattack.shared.AttackCheckpoint(
                     self.attack_args,
@@ -606,7 +604,7 @@ def set_env_variables(gpu_id):
 
 
 def attack_from_queue(
-        attack, attack_args, num_gpus, first_to_start, lock, in_queue, out_queue
+    attack, attack_args, num_gpus, first_to_start, lock, in_queue, out_queue
 ):
     assert isinstance(
         attack, Attack

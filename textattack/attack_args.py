@@ -8,6 +8,7 @@ import json
 import os
 import sys
 import time
+from typing import Dict, Optional
 
 import textattack
 from textattack.shared.utils import ARGS_SPLIT_TOKEN, load_module_from_file
@@ -38,6 +39,7 @@ ATTACK_RECIPE_NAMES = {
     "a2t": "textattack.attack_recipes.A2TYoo2021",
 }
 
+
 BLACK_BOX_TRANSFORMATION_CLASS_NAMES = {
     "random-synonym-insertion": "textattack.transformations.RandomSynonymInsertion",
     "word-deletion": "textattack.transformations.WordDeletion",
@@ -54,9 +56,11 @@ BLACK_BOX_TRANSFORMATION_CLASS_NAMES = {
     "word-swap-qwerty": "textattack.transformations.WordSwapQWERTY",
 }
 
+
 WHITE_BOX_TRANSFORMATION_CLASS_NAMES = {
     "word-swap-gradient": "textattack.transformations.WordSwapGradientBased"
 }
+
 
 CONSTRAINT_CLASS_NAMES = {
     #
@@ -94,6 +98,7 @@ CONSTRAINT_CLASS_NAMES = {
     "max-word-index": "textattack.constraints.pre_transformation.MaxWordIndexModification",
 }
 
+
 SEARCH_METHOD_CLASS_NAMES = {
     "beam-search": "textattack.search_methods.BeamSearch",
     "greedy": "textattack.search_methods.GreedySearch",
@@ -101,6 +106,7 @@ SEARCH_METHOD_CLASS_NAMES = {
     "greedy-word-wir": "textattack.search_methods.GreedyWordSwapWIR",
     "pso": "textattack.search_methods.ParticleSwarmOptimization",
 }
+
 
 GOAL_FUNCTION_CLASS_NAMES = {
     #
@@ -202,17 +208,18 @@ class AttackArgs:
     disable_stdout: bool = False
     silent: bool = False
     enable_advance_metrics: bool = False
+    metrics: Optional[Dict] = None
 
     def __post_init__(self):
         if self.num_successful_examples:
             self.num_examples = None
         if self.num_examples:
             assert (
-                    self.num_examples >= 0 or self.num_examples == -1
+                self.num_examples >= 0 or self.num_examples == -1
             ), "`num_examples` must be greater than or equal to 0 or equal to -1."
         if self.num_successful_examples:
             assert (
-                    self.num_successful_examples >= 0
+                self.num_successful_examples >= 0
             ), "`num_examples` must be greater than or equal to 0."
 
         if self.query_budget:
@@ -220,11 +227,11 @@ class AttackArgs:
 
         if self.checkpoint_interval:
             assert (
-                    self.checkpoint_interval > 0
+                self.checkpoint_interval > 0
             ), "`checkpoint_interval` must be greater than 0."
 
         assert (
-                self.num_workers_per_device > 0
+            self.num_workers_per_device > 0
         ), "`num_workers_per_device` must be greater than 0."
 
     @classmethod
@@ -311,7 +318,7 @@ class AttackArgs:
             const="",
             type=str,
             help="Path to which to save attack logs as a text file. Set this argument if you want to save text logs. "
-                 "If the last part of the path ends with `.txt` extension, the path is assumed to path for output file.",
+            "If the last part of the path ends with `.txt` extension, the path is assumed to path for output file.",
         )
         parser.add_argument(
             "--log-to-csv",
@@ -320,7 +327,7 @@ class AttackArgs:
             const="",
             type=str,
             help="Path to which to save attack logs as a CSV file. Set this argument if you want to save CSV logs. "
-                 "If the last part of the path ends with `.csv` extension, the path is assumed to path for output file.",
+            "If the last part of the path ends with `.csv` extension, the path is assumed to path for output file.",
         )
         parser.add_argument(
             "--log-summary-to-json",
@@ -329,14 +336,14 @@ class AttackArgs:
             const="",
             type=str,
             help="Path to which to save attack summary as a JSON file. Set this argument if you want to save attack results summary in a JSON. "
-                 "If the last part of the path ends with `.json` extension, the path is assumed to path for output file.",
+            "If the last part of the path ends with `.json` extension, the path is assumed to path for output file.",
         )
         parser.add_argument(
             "--csv-coloring-style",
             default=default_obj.csv_coloring_style,
             type=str,
             help='Method for choosing how to mark perturbed parts of the text in CSV logs. Options are "file" and "plain". '
-                 '"file" wraps text with double brackets `[[ <text> ]]` while "plain" does not mark any text. Default is "file".',
+            '"file" wraps text with double brackets `[[ <text> ]]` while "plain" does not mark any text. Default is "file".',
         )
         parser.add_argument(
             "--log-to-visdom",
@@ -345,8 +352,8 @@ class AttackArgs:
             const='{"env": "main", "port": 8097, "hostname": "localhost"}',
             type=json.loads,
             help="Set this argument if you want to log attacks to Visdom. The dictionary should have the following "
-                 'three keys and their corresponding values: `"env", "port", "hostname"`. '
-                 'Example for command line use: `--log-to-visdom {"env": "main", "port": 8097, "hostname": "localhost"}`.',
+            'three keys and their corresponding values: `"env", "port", "hostname"`. '
+            'Example for command line use: `--log-to-visdom {"env": "main", "port": 8097, "hostname": "localhost"}`.',
         )
         parser.add_argument(
             "--log-to-wandb",
@@ -355,8 +362,8 @@ class AttackArgs:
             const='{"project": "textattack"}',
             type=json.loads,
             help="Set this argument if you want to log attacks to WandB. The dictionary should have the following "
-                 'key and its corresponding value: `"project"`. '
-                 'Example for command line use: `--log-to-wandb {"project": "textattack"}`.',
+            'key and its corresponding value: `"project"`. '
+            'Example for command line use: `--log-to-wandb {"project": "textattack"}`.',
         )
         parser.add_argument(
             "--disable-stdout",
@@ -381,12 +388,13 @@ class AttackArgs:
 
     @classmethod
     def create_loggers_from_args(cls, args):
+        """Creates AttackLogManager from an AttackArgs object."""
         assert isinstance(
             args, cls
         ), f"Expect args to be of type `{type(cls)}`, but got type `{type(args)}`."
 
         # Create logger
-        attack_log_manager = textattack.loggers.AttackLogManager()
+        attack_log_manager = textattack.loggers.AttackLogManager(args.metrics)
 
         # Get current time for file naming
         timestamp = time.strftime("%Y-%m-%d-%H-%M")
@@ -499,8 +507,8 @@ class _CommandLineAttackArgs:
     interactive: bool = False
     parallel: bool = False
     model_batch_size: int = 32
-    model_cache_size: int = 2 ** 18
-    constraint_cache_size: int = 2 ** 18
+    model_cache_size: int = 2**18
+    constraint_cache_size: int = 2**18
 
     @classmethod
     def _add_parser_args(cls, parser):
@@ -515,7 +523,7 @@ class _CommandLineAttackArgs:
             required=False,
             default=default_obj.transformation,
             help='The transformation to apply. Usage: "--transformation {transformation}:{arg_1}={value_1},{arg_3}={value_3}". Choices: '
-                 + str(transformation_names),
+            + str(transformation_names),
         )
         parser.add_argument(
             "--constraints",
@@ -524,7 +532,7 @@ class _CommandLineAttackArgs:
             nargs="*",
             default=default_obj.constraints,
             help='Constraints to add to the attack. Usage: "--constraints {constraint}:{arg_1}={value_1},{arg_3}={value_3}". Choices: '
-                 + str(CONSTRAINT_CLASS_NAMES.keys()),
+            + str(CONSTRAINT_CLASS_NAMES.keys()),
         )
         goal_function_choices = ", ".join(GOAL_FUNCTION_CLASS_NAMES.keys())
         parser.add_argument(

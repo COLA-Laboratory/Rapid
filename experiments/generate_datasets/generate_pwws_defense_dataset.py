@@ -15,7 +15,7 @@ import os
 
 import numpy as np
 import pandas
-from pyabsa.functional.dataset import detect_dataset
+from anonymous_demo.functional.dataset import detect_dataset
 from transformers import AutoTokenizer, TFAutoModelForSequenceClassification, pipeline, \
     AutoModelForSequenceClassification
 
@@ -30,7 +30,7 @@ from textattack.models.wrappers import ModelWrapper, HuggingFaceModelWrapper
 import os
 
 import autocuda
-from pyabsa import TCConfigManager, GloVeTCModelList, TCDatasetList, BERTTCModelList, TADCheckpointManager, \
+from anonymous_demo import TCConfigManager, GloVeTCModelList, TCDatasetList, BERTTCModelList, TADCheckpointManager, \
     TCCheckpointManager
 
 if "TF_CPP_MIN_LOG_LEVEL" not in os.environ:
@@ -117,7 +117,7 @@ def generate_adversarial_example(dataset, attack_recipe, tad_classifier):
                                                      'synthesized'] + filter_key_words)
 
     for dat_type in [
-        # 'train',
+        'train',
         'valid',
         'test'
     ]:
@@ -143,56 +143,75 @@ def generate_adversarial_example(dataset, attack_recipe, tad_classifier):
             len_per_fold = len(data)
             folds = [data[i: i + len_per_fold] for i in range(0, len(data), len_per_fold)]
             for i in range(len(folds)):
-                adv_data = []
                 org_data = []
-                count = 0.
-                def_success = 0.
                 for text, label in tqdm.tqdm(folds[i], postfix='attacking {}-th fold...'.format(i + 1)):
-                    result = sent_attacker.attacker.simple_attack(text, label)
-                    new_data = {}
-
-                    if result is not None:
-                        new_data['origin_text'] = result.original_result.attacked_text.text
-                        new_data['origin_label'] = result.original_result.ground_truth_output
-
-                        new_data['adv_text'] = result.perturbed_result.attacked_text.text
-                        new_data['perturb_label'] = result.perturbed_result.output
-                        new_data['is_adv'] = 1
-
-                    else:
-                        print('No adversarial example for: {}'.format(text))
-                        continue
                     org_data.append('{}$LABEL${},{},{}\n'.format(
                         text,
                         label,
                         0,
                         -100,
                     ))
-                    if new_data['perturb_label'] != new_data['origin_label']:
-                        adv_data.append('{}$LABEL${},{},{}\n'.format(
-                            new_data['adv_text'],
-                            new_data['origin_label'],
-                            new_data['is_adv'],
-                            new_data['perturb_label'],
-                        ))
-                    if not os.path.exists(os.path.dirname(data_file) + f'/{dataset}{attack_recipe_name}/'):
-                        os.makedirs(os.path.dirname(data_file) + f'/{dataset}{attack_recipe_name}/')
-                    fout = open(os.path.dirname(data_file) + '/{}{}/{}.{}.{}.org'.format(dataset, attack_recipe_name,
-                                                                                         os.path.basename(data_file),
-                                                                                         i + 1, attack_recipe_name),
-                                mode='w',
-                                encoding='utf8')
-                    fout.writelines(org_data)
-                    fout.close()
 
-                    fout = open(os.path.dirname(data_file) + '/{}{}/{}.{}.{}.adv'.format(dataset, attack_recipe_name,
-                                                                                         os.path.basename(data_file),
-                                                                                         i + 1, attack_recipe_name),
-                                mode='w', encoding='utf8')
-                    fout.writelines(adv_data)
-                    fout.close()
-
-                # print('Defense Success Rate: {}'.format(def_success / count))
+                if not os.path.exists(os.path.dirname(data_file) + f'/{dataset}{attack_recipe_name}/'):
+                    os.makedirs(os.path.dirname(data_file) + f'/{dataset}{attack_recipe_name}/')
+                fout = open(os.path.dirname(data_file) + '/{}{}/{}.{}.{}.org'.format(dataset, attack_recipe_name,
+                                                                                     os.path.basename(data_file),
+                                                                                     i + 1, attack_recipe_name),
+                            mode='w',
+                            encoding='utf8')
+                fout.writelines(org_data)
+                fout.close()
+            # for i in range(len(folds)):
+            #     adv_data = []
+            #     org_data = []
+            #     count = 0.
+            #     def_success = 0.
+            #     for text, label in tqdm.tqdm(folds[i], postfix='attacking {}-th fold...'.format(i + 1)):
+            #         result = sent_attacker.attacker.simple_attack(text, label)
+            #         new_data = {}
+            #
+            #         if result is not None:
+            #             new_data['origin_text'] = result.original_result.attacked_text.text
+            #             new_data['origin_label'] = result.original_result.ground_truth_output
+            #
+            #             new_data['adv_text'] = result.perturbed_result.attacked_text.text
+            #             new_data['perturb_label'] = result.perturbed_result.output
+            #             new_data['is_adv'] = 1
+            #
+            #         else:
+            #             print('No adversarial example for: {}'.format(text))
+            #             continue
+            #         org_data.append('{}$LABEL${},{},{}\n'.format(
+            #             text,
+            #             label,
+            #             0,
+            #             -100,
+            #         ))
+            #         if new_data['perturb_label'] != new_data['origin_label']:
+            #             adv_data.append('{}$LABEL${},{},{}\n'.format(
+            #                 new_data['adv_text'],
+            #                 new_data['origin_label'],
+            #                 new_data['is_adv'],
+            #                 new_data['perturb_label'],
+            #             ))
+            #         if not os.path.exists(os.path.dirname(data_file) + f'/{dataset}{attack_recipe_name}/'):
+            #             os.makedirs(os.path.dirname(data_file) + f'/{dataset}{attack_recipe_name}/')
+            #         fout = open(os.path.dirname(data_file) + '/{}{}/{}.{}.{}.org'.format(dataset, attack_recipe_name,
+            #                                                                              os.path.basename(data_file),
+            #                                                                              i + 1, attack_recipe_name),
+            #                     mode='w',
+            #                     encoding='utf8')
+            #         fout.writelines(org_data)
+            #         fout.close()
+            #
+            #         fout = open(os.path.dirname(data_file) + '/{}{}/{}.{}.{}.adv'.format(dataset, attack_recipe_name,
+            #                                                                              os.path.basename(data_file),
+            #                                                                              i + 1, attack_recipe_name),
+            #                     mode='w', encoding='utf8')
+            #         fout.writelines(adv_data)
+            #         fout.close()
+            #
+            #     # print('Defense Success Rate: {}'.format(def_success / count))
 
 
 if __name__ == '__main__':
@@ -208,7 +227,8 @@ if __name__ == '__main__':
     datasets = [
         # 'SST2',
         # 'AGNews10k',
-        'Amazon',
+        # 'Amazon',
+        'IMDB',
     ]
     for dataset in datasets:
         # tad_classifier = TADCheckpointManager.get_tad_text_classifier(

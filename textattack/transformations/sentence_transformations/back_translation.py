@@ -4,6 +4,7 @@ BackTranslation class
 
 """
 
+
 import random
 
 from transformers import MarianMTModel, MarianTokenizer
@@ -42,12 +43,12 @@ class BackTranslation(SentenceTransformation):
     """
 
     def __init__(
-            self,
-            src_lang="en",
-            target_lang="es",
-            src_model="Helsinki-NLP/opus-mt-ROMANCE-en",
-            target_model="Helsinki-NLP/opus-mt-en-ROMANCE",
-            chained_back_translation=0,
+        self,
+        src_lang="en",
+        target_lang="es",
+        src_model="Helsinki-NLP/opus-mt-ROMANCE-en",
+        target_model="Helsinki-NLP/opus-mt-en-ROMANCE",
+        chained_back_translation=0,
     ):
         self.src_lang = src_lang
         self.target_lang = target_lang

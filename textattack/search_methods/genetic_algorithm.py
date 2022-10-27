@@ -29,13 +29,13 @@ class GeneticAlgorithm(PopulationBasedSearch, ABC):
     """
 
     def __init__(
-            self,
-            pop_size=60,
-            max_iters=20,
-            temp=0.3,
-            give_up_if_no_improvement=False,
-            post_crossover_check=True,
-            max_crossover_retries=20,
+        self,
+        pop_size=60,
+        max_iters=20,
+        temp=0.3,
+        give_up_if_no_improvement=False,
+        post_crossover_check=True,
+        max_crossover_retries=20,
     ):
         self.max_iters = max_iters
         self.pop_size = pop_size
@@ -102,7 +102,7 @@ class GeneticAlgorithm(PopulationBasedSearch, ABC):
             new_results, self._search_over = self.get_goal_results(transformed_texts)
 
             diff_scores = (
-                    torch.Tensor([r.score for r in new_results]) - pop_member.result.score
+                torch.Tensor([r.score for r in new_results]) - pop_member.result.score
             )
             if len(diff_scores) and diff_scores.max() > 0:
                 idx_with_max_score = diff_scores.argmax()
@@ -137,7 +137,7 @@ class GeneticAlgorithm(PopulationBasedSearch, ABC):
         raise NotImplementedError()
 
     def _post_crossover_check(
-            self, new_text, parent_text1, parent_text2, original_text
+        self, new_text, parent_text1, parent_text2, original_text
     ):
         """Check if `new_text` that has been produced by performing crossover
         between `parent_text1` and `parent_text2` aligns with the constraints.
@@ -186,10 +186,8 @@ class GeneticAlgorithm(PopulationBasedSearch, ABC):
 
             replaced_indices = new_text.attack_attrs["newly_modified_indices"]
             new_text.attack_attrs["modified_indices"] = (
-                                                                x1_text.attack_attrs[
-                                                                    "modified_indices"] - replaced_indices
-                                                        ) | (x2_text.attack_attrs[
-                                                                 "modified_indices"] & replaced_indices)
+                x1_text.attack_attrs["modified_indices"] - replaced_indices
+            ) | (x2_text.attack_attrs["modified_indices"] & replaced_indices)
 
             if "last_transformation" in x1_text.attack_attrs:
                 new_text.attack_attrs["last_transformation"] = x1_text.attack_attrs[
@@ -243,9 +241,9 @@ class GeneticAlgorithm(PopulationBasedSearch, ABC):
             population = sorted(population, key=lambda x: x.result.score, reverse=True)
 
             if (
-                    self._search_over
-                    or population[0].result.goal_status
-                    == GoalFunctionResultStatus.SUCCEEDED
+                self._search_over
+                or population[0].result.goal_status
+                == GoalFunctionResultStatus.SUCCEEDED
             ):
                 break
 

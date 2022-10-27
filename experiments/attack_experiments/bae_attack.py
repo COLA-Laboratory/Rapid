@@ -21,7 +21,7 @@ from transformers import AutoTokenizer, TFAutoModelForSequenceClassification, pi
 
 from textattack import Attacker
 from textattack.attack_recipes import BERTAttackLi2020, BAEGarg2019, PWWSRen2019, TextFoolerJin2019, PSOZang2020, \
-    IGAWang2019, GeneticAlgorithmAlzantot2018, DeepWordBugGao2018
+    IGAWang2019, GeneticAlgorithmAlzantot2018, DeepWordBugGao2018, IGAWang2019, CLARE2020
 from textattack.attack_recipes import TextFoolerJin2019
 from textattack.attack_results import SuccessfulAttackResult
 from textattack.datasets import HuggingFaceDataset, Dataset
@@ -29,8 +29,15 @@ from textattack.models.wrappers import ModelWrapper, HuggingFaceModelWrapper
 
 import os
 
+import tensorflow as tf
+
+gpus = tf.config.experimental.list_physical_devices(device_type='GPU')
+tf.config.experimental.set_virtual_device_configuration(gpus[0],
+                                                        [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=10000)])
+
 import autocuda
 from pyabsa import TCConfigManager, GloVeTCModelList, TCDatasetList, BERTTCModelList, TCCheckpointManager
+import time
 
 if "TF_CPP_MIN_LOG_LEVEL" not in os.environ:
     os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
@@ -136,11 +143,15 @@ def generate_adversarial_example(dataset, attack_recipe, text_classifier):
                 try:
                     result = sent_attacker.attacker.simple_attack(text, label)
                 except Exception as e:
+                    del sent_attacker
+                    print('Caught exception: {}, sleep ...'.format(e))
+                    time.sleep(5)
+                    sent_attacker = SentAttacker(text_classifier, attack_recipe)
                     print(e)
                     continue
                 count += 1
                 if result.original_result.ground_truth_output == result.original_result.output and \
-                        result.original_result.ground_truth_output == result.perturbed_result.output:
+                    result.original_result.ground_truth_output == result.perturbed_result.output:
                     acc_count += 1
 
                 print(colored('Accuracy: {}%'.format(acc_count / count * 100), 'cyan'))
@@ -153,28 +164,37 @@ if __name__ == '__main__':
     # attack_name = 'PWWS'
     # attack_name = 'TextFooler'
 
-    attack_name = 'PSO'
+    attack_name = 'clare'
+    # attack_name = 'PSO'
+    # attack_name = 'iga'
     # attack_name = 'GA'
     # attack_name = 'wordbugger'
 
+    attack_names = [
+        'clare',
+        'PSO',
+        'iga',
+        'GA'
+    ]
+
     datasets = [
-        # 'sst2',
-        # 'agnews',
-        # 'Yelp10K'
-        # 'imdb10k',
-        'Amazon'
+        'sst2',
+        'Amazon',
+        'agnews',
     ]
 
     for dataset in datasets:
-        text_classifier = TCCheckpointManager.get_text_classifier('bert_{}'.format(dataset))
-        attack_recipes = {
-            'bae': BAEGarg2019,
-            'pwws': PWWSRen2019,
-            'textfooler': TextFoolerJin2019,
-            'pso': PSOZang2020,
-            'iga': IGAWang2019,
-            'ga': GeneticAlgorithmAlzantot2018,
-            'wordbugger': DeepWordBugGao2018,
-        }
-        generate_adversarial_example(dataset, attack_recipe=attack_recipes[attack_name.lower()],
-                                     text_classifier=text_classifier)
+        for attack_name in attack_names:
+            text_classifier = TCCheckpointManager.get_text_classifier('bert_{}'.format(dataset))
+            attack_recipes = {
+                'bae': BAEGarg2019,
+                'pwws': PWWSRen2019,
+                'textfooler': TextFoolerJin2019,
+                'pso': PSOZang2020,
+                'iga': IGAWang2019,
+                'clare': CLARE2020,
+                'ga': GeneticAlgorithmAlzantot2018,
+                'wordbugger': DeepWordBugGao2018,
+            }
+            generate_adversarial_example(dataset, attack_recipe=attack_recipes[attack_name.lower()],
+                                         text_classifier=text_classifier)

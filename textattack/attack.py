@@ -76,13 +76,13 @@ class Attack:
     """
 
     def __init__(
-            self,
-            goal_function: GoalFunction,
-            constraints: List[Union[Constraint, PreTransformationConstraint]],
-            transformation: Transformation,
-            search_method: SearchMethod,
-            transformation_cache_size=2 ** 15,
-            constraint_cache_size=2 ** 15,
+        self,
+        goal_function: GoalFunction,
+        constraints: List[Union[Constraint, PreTransformationConstraint]],
+        transformation: Transformation,
+        search_method: SearchMethod,
+        transformation_cache_size=2**15,
+        constraint_cache_size=2**15,
     ):
         """Initialize an attack object.
 
@@ -109,11 +109,11 @@ class Attack:
         self.search_method = search_method
         self.transformation = transformation
         self.is_black_box = (
-                getattr(transformation, "is_black_box", True) and search_method.is_black_box
+            getattr(transformation, "is_black_box", True) and search_method.is_black_box
         )
 
         if not self.search_method.check_transformation_compatibility(
-                self.transformation
+            self.transformation
         ):
             raise ValueError(
                 f"SearchMethod {self.search_method} incompatible with transformation {self.transformation}"
@@ -123,8 +123,8 @@ class Attack:
         self.pre_transformation_constraints = []
         for constraint in constraints:
             if isinstance(
-                    constraint,
-                    textattack.constraints.PreTransformationConstraint,
+                constraint,
+                textattack.constraints.PreTransformationConstraint,
             ):
                 self.pre_transformation_constraints.append(constraint)
             else:
@@ -179,16 +179,16 @@ class Attack:
             if isinstance(obj, torch.nn.Module):
                 obj.cpu()
             elif isinstance(
-                    obj,
-                    (
-                            Attack,
-                            GoalFunction,
-                            Transformation,
-                            SearchMethod,
-                            Constraint,
-                            PreTransformationConstraint,
-                            ModelWrapper,
-                    ),
+                obj,
+                (
+                    Attack,
+                    GoalFunction,
+                    Transformation,
+                    SearchMethod,
+                    Constraint,
+                    PreTransformationConstraint,
+                    ModelWrapper,
+                ),
             ):
                 for key in obj.__dict__:
                     s_obj = obj.__dict__[key]
@@ -197,7 +197,7 @@ class Attack:
             elif isinstance(obj, (list, tuple)):
                 for item in obj:
                     if id(item) not in visited and isinstance(
-                            item, (Transformation, Constraint, PreTransformationConstraint)
+                        item, (Transformation, Constraint, PreTransformationConstraint)
                     ):
                         to_cpu(item)
 
@@ -212,16 +212,16 @@ class Attack:
             if isinstance(obj, torch.nn.Module):
                 obj.to(textattack.shared.utils.device)
             elif isinstance(
-                    obj,
-                    (
-                            Attack,
-                            GoalFunction,
-                            Transformation,
-                            SearchMethod,
-                            Constraint,
-                            PreTransformationConstraint,
-                            ModelWrapper,
-                    ),
+                obj,
+                (
+                    Attack,
+                    GoalFunction,
+                    Transformation,
+                    SearchMethod,
+                    Constraint,
+                    PreTransformationConstraint,
+                    ModelWrapper,
+                ),
             ):
                 for key in obj.__dict__:
                     s_obj = obj.__dict__[key]
@@ -230,7 +230,7 @@ class Attack:
             elif isinstance(obj, (list, tuple)):
                 for item in obj:
                     if id(item) not in visited and isinstance(
-                            item, (Transformation, Constraint, PreTransformationConstraint)
+                        item, (Transformation, Constraint, PreTransformationConstraint)
                     ):
                         to_cuda(item)
 
@@ -315,7 +315,7 @@ class Attack:
         )
 
     def _filter_transformations_uncached(
-            self, transformed_texts, current_text, original_text=None
+        self, transformed_texts, current_text, original_text=None
     ):
         """Filters a list of potential transformed texts based on
         ``self.constraints``
@@ -347,7 +347,7 @@ class Attack:
         return filtered_texts
 
     def filter_transformations(
-            self, transformed_texts, current_text, original_text=None
+        self, transformed_texts, current_text, original_text=None
     ):
         """Filters a list of potential transformed texts based on
         ``self.constraints`` Utilizes an LRU cache to attempt to avoid
@@ -382,7 +382,7 @@ class Attack:
         filtered_texts.sort(key=lambda t: t.text)
         return filtered_texts
 
-    def _attack(self, initial_result, **kwargs):
+    def _attack(self, initial_result):
         """Calls the ``SearchMethod`` to perturb the ``AttackedText`` stored in
         ``initial_result``.
 
@@ -393,7 +393,7 @@ class Attack:
             A ``SuccessfulAttackResult``, ``FailedAttackResult``,
                 or ``MaximizedAttackResult``.
         """
-        final_result = self.search_method(initial_result, **kwargs)
+        final_result = self.search_method(initial_result)
         self.clear_cache()
         if final_result.goal_status == GoalFunctionResultStatus.SUCCEEDED:
             result = SuccessfulAttackResult(
@@ -414,7 +414,7 @@ class Attack:
             raise ValueError(f"Unrecognized goal status {final_result.goal_status}")
         return result
 
-    def attack(self, example, ground_truth_output, **kwargs):
+    def attack(self, example, ground_truth_output):
         """Attack a single example.
 
         Args:
@@ -445,7 +445,7 @@ class Attack:
         if goal_function_result.goal_status == GoalFunctionResultStatus.SKIPPED:
             return SkippedAttackResult(goal_function_result)
         else:
-            result = self._attack(goal_function_result, **kwargs)
+            result = self._attack(goal_function_result)
             return result
 
     def __repr__(self):

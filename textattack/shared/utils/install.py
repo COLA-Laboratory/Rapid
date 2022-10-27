@@ -206,4 +206,5 @@ TEXTATTACK_CACHE_DIR = os.environ.get(
 if "TA_CACHE_DIR" in os.environ:
     set_cache_dir(os.environ["TA_CACHE_DIR"])
 
+
 _post_install_if_needed()

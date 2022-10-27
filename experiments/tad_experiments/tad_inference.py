@@ -9,8 +9,8 @@ import os
 
 import findfile
 
-from pyabsa import TCCheckpointManager, TCDatasetList, TADCheckpointManager
-from pyabsa.functional.dataset.dataset_manager import AdvTCDatasetList, DatasetItem
+from anonymous_demo import TCCheckpointManager, TCDatasetList, TADCheckpointManager
+from anonymous_demo.functional.dataset.dataset_manager import AdvTCDatasetList, DatasetItem
 
 os.environ['PYTHONIOENCODING'] = 'UTF8'
 
@@ -28,17 +28,22 @@ os.environ['PYTHONIOENCODING'] = 'UTF8'
 # ckpt = r'tad-amazontextfooler'
 
 for dataset in [
-    'SST2BAE',
-    'SST2PWWS',
-    'SST2TextFooler',
-    'AGNews10KBAE',
-    'AGNews10KPWWS',
-    'AGNews10KTextFooler',
-    'AmazonBAE',
-    'AmazonPWWS',
-    'AmazonTextFooler',
+    'SST2',
+    'Amazon',
+    'AGNews',
 ]:
-    inference_sets = DatasetItem(dataset, findfile.find_cwd_files([dataset, '.adv', '.inference']))
+# for dataset in [
+#     'SST2BAE',
+#     'SST2PWWS',
+#     'SST2TextFooler',
+#     'AGNews10KBAE',
+#     'AGNews10KPWWS',
+#     'AGNews10KTextFooler',
+#     'AmazonBAE',
+#     'AmazonPWWS',
+#     'AmazonTextFooler',
+# ]:
+    inference_sets = DatasetItem(dataset, findfile.find_cwd_files([dataset, '.org', '.inference']))
 
     text_classifier = TADCheckpointManager.get_tad_text_classifier(checkpoint=f'TAD-{dataset}',
                                                                    auto_device=True,  # Use CUDA if available
@@ -65,4 +70,4 @@ for dataset in [
     #                                       ignore_error=False,
     #                                       )
     #
-    # input('Press Enter to continue...')
+    input('Press Enter to continue...')

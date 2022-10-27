@@ -10,7 +10,7 @@ from .word_swap import WordSwap
 
 class WordSwapQWERTY(WordSwap):
     def __init__(
-            self, random_one=True, skip_first_char=False, skip_last_char=False, **kwargs
+        self, random_one=True, skip_first_char=False, skip_last_char=False, **kwargs
     ):
         """A transformation that swaps characters with adjacent keys on a
         QWERTY keyboard, replicating the kind of errors that come from typing
@@ -91,13 +91,13 @@ class WordSwapQWERTY(WordSwap):
         if self.random_one:
             i = random.randrange(start_idx, end_idx + 1)
             candidate_word = (
-                    word[:i] + random.choice(self._get_adjacent(word[i])) + word[i + 1:]
+                word[:i] + random.choice(self._get_adjacent(word[i])) + word[i + 1 :]
             )
             candidate_words.append(candidate_word)
         else:
             for i in range(start_idx, end_idx + 1):
                 for swap_key in self._get_adjacent(word[i]):
-                    candidate_word = word[:i] + swap_key + word[i + 1:]
+                    candidate_word = word[:i] + swap_key + word[i + 1 :]
                     candidate_words.append(candidate_word)
 
         return candidate_words

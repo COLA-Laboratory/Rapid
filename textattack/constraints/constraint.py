@@ -38,7 +38,7 @@ class Constraint(ReprMixin, ABC):
         for transformed_text in transformed_texts:
             try:
                 if self.check_compatibility(
-                        transformed_text.attack_attrs["last_transformation"]
+                    transformed_text.attack_attrs["last_transformation"]
                 ):
                     compatible_transformed_texts.append(transformed_text)
                 else:
@@ -82,7 +82,7 @@ class Constraint(ReprMixin, ABC):
 
         try:
             if not self.check_compatibility(
-                    transformed_text.attack_attrs["last_transformation"]
+                transformed_text.attack_attrs["last_transformation"]
             ):
                 return True
         except KeyError:

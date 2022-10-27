@@ -10,10 +10,10 @@ All evaluation results were obtained using `textattack eval` to evaluate models 
 test dataset (test set, if labels are available, otherwise, eval/validation set). You can use
 this command to verify the accuracies for yourself: for example, `textattack eval --model roberta-base-mr`.
 
+
 The LSTM and wordCNN models' code is available in `textattack.models.helpers`. All other models are transformers
-imported from the [`transformers`](https://github.com/huggingface/transformers/) package. To list evaluate all
-TextAttack pretrained models, invoke `textattack eval` without specifying a model: `textattack eval --num-examples 1000`
-.
+imported from the [`transformers`](https://github.com/huggingface/transformers/) package. To list evaluate all 
+TextAttack pretrained models, invoke `textattack eval` without specifying a model: `textattack eval --num-examples 1000`.
 All evaluations shown are on the full validation or test set up to 1000 examples.
 
 ### `LSTM`
@@ -30,14 +30,14 @@ All evaluations shown are on the full validation or test set up to 1000 examples
         - Accuracy: 88.30%
 - Movie Reviews [Rotten Tomatoes] (`lstm-mr`)
     - `datasets` dataset `rotten_tomatoes`, split `validation`
-        - Correct/Whole: 807/1000
+        - Correct/Whole: 807/1000 
         - Accuracy: 80.70%
     - `datasets` dataset `rotten_tomatoes`, split `test`
         - Correct/Whole: 781/1000
         - Accuracy: 78.10%
 - SST-2 (`lstm-sst2`)
     - `datasets` dataset `glue`, subset `sst2`, split `validation`
-        - Correct/Whole: 737/872
+        - Correct/Whole: 737/872 
         - Accuracy: 84.52%
 - Yelp Polarity (`lstm-yelp`)
     - `datasets` dataset `yelp_polarity`, split `test`
@@ -50,6 +50,7 @@ All evaluations shown are on the full validation or test set up to 1000 examples
 
 <section>
 
+
 - AG News (`cnn-ag-news`)
     - `datasets` dataset `ag_news`, split `test`
         - Correct/Whole: 910/1000
@@ -60,14 +61,14 @@ All evaluations shown are on the full validation or test set up to 1000 examples
         - Accuracy: 86.30%
 - Movie Reviews [Rotten Tomatoes] (`cnn-mr`)
     - `datasets` dataset `rotten_tomatoes`, split `validation`
-        - Correct/Whole: 794/1000
+        - Correct/Whole: 794/1000 
         - Accuracy: 79.40%
     - `datasets` dataset `rotten_tomatoes`, split `test`
         - Correct/Whole: 768/1000
         - Accuracy: 76.80%
 - SST-2 (`cnn-sst2`)
     - `datasets` dataset `glue`, subset `sst2`, split `validation`
-        - Correct/Whole: 721/872
+        - Correct/Whole: 721/872 
         - Accuracy: 82.68%
 - Yelp Polarity (`cnn-yelp`)
     - `datasets` dataset `yelp_polarity`, split `test`
@@ -75,6 +76,7 @@ All evaluations shown are on the full validation or test set up to 1000 examples
         - Accuracy: 91.30%
 
 </section>
+
 
 ### `albert-base-v2`
 
@@ -105,7 +107,7 @@ All evaluations shown are on the full validation or test set up to 1000 examples
         - Accuracy: 91.40%
 - Recognizing Textual Entailment (`albert-base-v2-rte`)
     - `datasets` dataset `glue`, subset `rte`, split `validation`
-        - Correct/Whole: 211/277
+        - Correct/Whole: 211/277 
         - Accuracy: 76.17%
 - SNLI (`albert-base-v2-snli`)
     - `datasets` dataset `snli`, split `test`
@@ -171,7 +173,7 @@ All evaluations shown are on the full validation or test set up to 1000 examples
         - Accuracy: 92.40%
 - Recognizing Textual Entailment (`bert-base-uncased-rte`)
     - `datasets` dataset `glue`, subset `rte`, split `validation`
-        - Correct/Whole: 201/277
+        - Correct/Whole: 201/277 
         - Accuracy: 72.56%
 - SNLI (`bert-base-uncased-snli`)
     - `datasets` dataset `snli`, split `test`
@@ -199,6 +201,7 @@ All evaluations shown are on the full validation or test set up to 1000 examples
 ### `distilbert-base-cased`
 
 <section>
+
 
 - CoLA (`distilbert-base-cased-cola`)
     - `datasets` dataset `glue`, subset `cola`, split `validation`
@@ -257,7 +260,7 @@ All evaluations shown are on the full validation or test set up to 1000 examples
         - Accuracy: 86.00%
 - Recognizing Textual Entailment (`distilbert-base-uncased-rte`)
     - `datasets` dataset `glue`, subset `rte`, split `validation`
-        - Correct/Whole: 180/277
+        - Correct/Whole: 180/277 
         - Accuracy: 64.98%
 - STS-b (`distilbert-base-uncased-stsb`)
     - `datasets` dataset `glue`, subset `stsb`, split `validation`
@@ -303,7 +306,7 @@ All evaluations shown are on the full validation or test set up to 1000 examples
         - Accuracy: 91.70%
 - Recognizing Textual Entailment (`roberta-base-rte`)
     - `datasets` dataset `glue`, subset `rte`, split `validation`
-        - Correct/Whole: 217/277
+        - Correct/Whole: 217/277 
         - Accuracy: 78.34%
 - SST-2 (`roberta-base-sst2`)
     - `datasets` dataset `glue`, subset `sst2`, split `validation`
@@ -345,7 +348,7 @@ All evaluations shown are on the full validation or test set up to 1000 examples
         - Accuracy: 88.97%
 - Recognizing Textual Entailment (`xlnet-base-cased-rte`)
     - `datasets` dataset `glue`, subset `rte`, split `validation`
-        - Correct/Whole: 196/277
+        - Correct/Whole: 196/277 
         - Accuracy: 70.76%
 - STS-b (`xlnet-base-cased-stsb`)
     - `datasets` dataset `glue`, subset `stsb`, split `validation`
@@ -358,9 +361,11 @@ All evaluations shown are on the full validation or test set up to 1000 examples
 
 </section>
 
+
 # More details on TextAttack models (details on NLP task, output type, SOTA on paperswithcode; model card on huggingface):
 
 <section>
+
 
 Fine-tuned Model                         |  NLP Task                                       |  Input type                                   |  Output Type                                        |  paperswithcode.com SOTA                                                       |  huggingface.co Model Card
 ------------------------------|-----------------------------|------------------------------|-----------------------------|------------------------------|-------------------------------------
@@ -369,10 +374,10 @@ bert-base-uncased-CoLA                   |  linguistic acceptability            
 distilbert-base-cased-CoLA               |  linguistic acceptability                       |  single sentences                             |  binary (1=acceptable/ 0=unacceptable)               | <sub><sup> https://paperswithcode.com/sota/linguistic-acceptability-on-cola  </sub></sup>            |  <sub><sup>https://huggingface.co/textattack/distilbert-base-cased-CoLA </sub></sup>
 distilbert-base-uncased-CoLA             |  linguistic acceptability                       |  single sentences                             |  binary (1=acceptable/ 0=unacceptable)               | <sub><sup> https://paperswithcode.com/sota/linguistic-acceptability-on-cola     </sub></sup>         |  <sub><sup>https://huggingface.co/textattack/distilbert-base-uncased-CoLA </sub></sup>
 roberta-base-CoLA                        |  linguistic acceptability                       |  single sentences                             |  binary (1=acceptable/ 0=unacceptable)               | <sub><sup> https://paperswithcode.com/sota/linguistic-acceptability-on-cola  </sub></sup>            | <sub><sup> https://huggingface.co/textattack/roberta-base-CoLA </sub></sup>
-xlnet-base-cased-CoLA                    |  linguistic acceptability                       |  single sentences                             |  binary (1=acceptable/ 0=unacceptable)               | <sub><sup> https://paperswithcode.com/sota/linguistic-acceptability-on-cola   </sub></sup>            |  <sub><sup>https://huggingface.co/textattack/xlnet-base-cased-CoLA </sub></sup>
-albert-base-v2-RTE                       |  natural language inference                     |  sentence pairs (1 premise and 1 hypothesis)  |  binary(0=entailed/1=not entailed)                  | <sub><sup> https://paperswithcode.com/sota/natural-language-inference-on-rte     </sub></sup>         | <sub><sup> https://huggingface.co/textattack/albert-base-v2-RTE </sub></sup>
-albert-base-v2-snli                      |  natural language inference                     |  sentence pairs                               |  accuracy (0=entailment, 1=neutral,2=contradiction)  |  none yet                                                                      | <sub><sup> https://huggingface.co/textattack/albert-base-v2-snli </sub></sup>
-albert-base-v2-WNLI                      |  natural language inference                     |  sentence pairs                               |  binary                                             | <sub><sup>  https://paperswithcode.com/sota/natural-language-inference-on-wnli  </sub></sup>           | <sub><sup> https://huggingface.co/textattack/albert-base-v2-WNLI</sub></sup>
+xlnet-base-cased-CoLA                    |  linguistic acceptability                       |  single sentences                             |  binary (1=acceptable/ 0=unacceptable)               | <sub><sup> https://paperswithcode.com/sota/linguistic-acceptability-on-cola   </sub></sup>            |  <sub><sup>https://huggingface.co/textattack/xlnet-base-cased-CoLA </sub></sup> 
+albert-base-v2-RTE                       |  natural language inference                     |  sentence pairs (1 premise and 1 hypothesis)  |  binary(0=entailed/1=not entailed)                  | <sub><sup> https://paperswithcode.com/sota/natural-language-inference-on-rte     </sub></sup>         | <sub><sup> https://huggingface.co/textattack/albert-base-v2-RTE </sub></sup> 
+albert-base-v2-snli                      |  natural language inference                     |  sentence pairs                               |  accuracy (0=entailment, 1=neutral,2=contradiction)  |  none yet                                                                      | <sub><sup> https://huggingface.co/textattack/albert-base-v2-snli </sub></sup>  
+albert-base-v2-WNLI                      |  natural language inference                     |  sentence pairs                               |  binary                                             | <sub><sup>  https://paperswithcode.com/sota/natural-language-inference-on-wnli  </sub></sup>           | <sub><sup> https://huggingface.co/textattack/albert-base-v2-WNLI</sub></sup> 
 bert-base-uncased-MNLI                   |  natural language inference                     |  sentence pairs (1 premise and 1 hypothesis)  |  accuracy (0=entailment, 1=neutral,2=contradiction)  |  none yet                                                                      |  <sub><sup> https://huggingface.co/textattack/bert-base-uncased-MNLI  </sub></sup>
 bert-base-uncased-QNLI                   |  natural language inference                     |  question/answer pairs                        |  binary (1=unanswerable/ 0=answerable)               |  none yet                                                                      |<sub><sup>  https://huggingface.co/textattack/bert-base-uncased-QNLI </sub></sup>
 bert-base-uncased-RTE                    |  natural language inference                     |  sentence pairs (1 premise and 1 hypothesis)  |  binary(0=entailed/1=not entailed)                  |  none yet                                                                      | <sub><sup> https://huggingface.co/textattack/bert-base-uncased-RTE </sub></sup>

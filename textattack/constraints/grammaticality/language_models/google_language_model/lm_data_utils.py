@@ -20,6 +20,7 @@ A library for loading 1B word benchmark dataset.
 
 """
 
+
 import random
 
 import numpy as np
@@ -217,7 +218,7 @@ def get_batch(generator, batch_size, num_steps, max_word_length, pad=False):
                 inputs[i, cur_pos:next_pos] = cur_stream[i][0][:how_many]
                 char_inputs[i, cur_pos:next_pos] = cur_stream[i][1][:how_many]
                 global_word_ids[i, cur_pos:next_pos] = cur_stream[i][2][:how_many]
-                targets[i, cur_pos:next_pos] = cur_stream[i][0][1: how_many + 1]
+                targets[i, cur_pos:next_pos] = cur_stream[i][0][1 : how_many + 1]
                 weights[i, cur_pos:next_pos] = 1.0
 
                 cur_pos = next_pos
